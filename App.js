@@ -1,14 +1,83 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import { Platform, StatusBar, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Account, Chats, Home, MyAds, ProductDetails, Sell } from './src/Screens';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import Icon from 'react-native-vector-icons/Ionicons';
+
+import { Provider } from 'react-redux';
+import store from './src/Redux/Store/Store';
+
+import Tabs from './src/navigation/Tabs';
+import Categories from './src/Screens/Categories/Categories';
+import SearchScreen from './src/Screens/Search/SearchScreen';
 
 const App = () => {
+  const Stack = createNativeStackNavigator();
+
+  useEffect(() => {
+    if (Platform.OS !== 'ios') {
+      StatusBar.setBackgroundColor('white', true);
+    }
+
+    StatusBar.setBarStyle('dark-content');
+
+    return () => {
+
+    }
+  }, [])
+
   return (
-    <View>
-      <Text>hello</Text>
-    </View>
-  )
-}
+    <Provider store={store}>
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerShadowVisible: true,
+          }}>
+          <Stack.Screen
+            name="Tabs"
+            component={Tabs}
+            options={{
+              header: () => null,
+              title: '',
+            }}
+          />
+          <Stack.Screen
+            name="ProductDetails"
+            component={ProductDetails}
+            options={{
+              // header:()=>null,
+              title: '',
+              headerRight: () => <Icon name="share-social-outline" size={25} />,
+            }}
+          />
 
-export default App
+          <Stack.Screen
+            name="Sell"
+            component={Sell}
+            options={{
+              title: '',
+            }} />
 
-const styles = StyleSheet.create({})
+          <Stack.Screen
+            name="Categories"
+            component={Categories}
+            options={{
+              title: 'Categories',
+            }} />
+          <Stack.Screen
+            name="SearchScreen"
+            component={SearchScreen}
+            options={{
+              header: () => null,
+            }} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </Provider>
+  );
+};
+
+export default App;
+
+const styles = StyleSheet.create({});
