@@ -13,8 +13,6 @@ export const AppColor = {
   bisque: '#FFE4C4',
   black: '#000000',
   blanchedAlmond: '#FFEBCD',
-  blue: '#0000FF',
-  blueViolet: '#8A2BE2',
   brown: '#A52A2A',
   burlyWood: '#DEB887',
   cadetBlue: '#5F9EA0',
@@ -53,5 +51,10 @@ export const AppColor = {
   gainsboro: '#DCDCDC',
   ghostWhite: '#F8F8FF',
   gold: '#FFD700',
-  smokeWhite:'#F5F5F5'
+  smokeWhite: '#F5F5F5',
+  // LinearGradient1: ['#8E2DE2', '#4A00E0']
+  LinearGradient1: ['#2193b0', '#6dd5ed'],
+  blue: '#4A00E0',
+  // blueViolet: '#8A2BE2',
+  blueViolet: '#2193b0'
 };

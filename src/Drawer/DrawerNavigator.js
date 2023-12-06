@@ -8,6 +8,7 @@ import { height, responsiveFontSize, width } from '../utils/Dimensions/Dimension
 import { AppColor } from '../utils/AppColor';
 import Icon from 'react-native-vector-icons/Feather';
 import LinearGradient from 'react-native-linear-gradient';
+import DrawerContent from './DrawerContent';
 
 const Drawer = createDrawerNavigator();
 
@@ -29,7 +30,7 @@ const CustomHeaderRight = () => (
             style={styles.heartIcon}
         />
         <LinearGradient
-            colors={['#8E2DE2', '#4A00E0']}
+            colors={AppColor.LinearGradient1}
             style={styles.coinsContainer}
         >
             <Text style={styles.coinsText}>Coins 100</Text>
@@ -54,9 +55,10 @@ const DrawerNavigator = ({ navigation }) => {
                 },
                 drawerStyle: {
                     // backgroundColor: AppColor.azure,
-                    // width: 240,
+                    width: width / 1.5,
                 },
             }}
+            drawerContent={props => <DrawerContent {...props} />}
         >
             <Drawer.Screen
                 name="StyleExchange"
@@ -67,7 +69,7 @@ const DrawerNavigator = ({ navigation }) => {
                     headerRight: () => <CustomHeaderRight />,
                 }}
             />
-            <Drawer.Screen name="Account" component={Account} />
+            {/* <Drawer.Screen name="Account" component={Account} /> */}
         </Drawer.Navigator>
     );
 };

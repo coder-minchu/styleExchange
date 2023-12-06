@@ -1,20 +1,22 @@
-import {StyleSheet, Text, View} from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import IconEntypo from 'react-native-vector-icons/Entypo';
 import LinearGradient from 'react-native-linear-gradient';
 import React from 'react';
+import { AppColor } from '../../utils/AppColor';
+import { height } from '../../utils/Dimensions/Dimension';
 
 const CustumTabButton = () => {
   return (
-    <View style={{justifyContent: 'center', alignItems: 'center'}}>
-      <View
+    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+      <LinearGradient
+        colors={AppColor.LinearGradient1}
         style={{
-          width: 50,
-          height: 50,
+          width: 60,
+          height: 60,
           borderRadius: 25,
           justifyContent: 'center',
           alignItems: 'center',
           elevation: 4,
-          backgroundColor: 'blue',
           position: 'relative',
           zIndex: 999,
           top: -10,
@@ -31,9 +33,10 @@ const CustumTabButton = () => {
             position: 'absolute',
             zIndex: 999,
           }}>
-          <IconEntypo name="plus" size={25} color="black" />
+          <IconEntypo name="plus" size={height / 50}
+            color="black" />
         </View>
-      </View>
+      </LinearGradient>
     </View>
   );
 };

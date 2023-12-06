@@ -12,6 +12,8 @@ import store from './src/Redux/Store/Store';
 import Tabs from './src/navigation/Tabs';
 import Categories from './src/Screens/Categories/Categories';
 import SearchScreen from './src/Screens/Search/SearchScreen';
+import SplashScreen from './src/Screens/Splash/SplashScreen';
+import AppIntroSliders from './src/AppIntroSlider/AppIntroSlider';
 
 const App = () => {
   const Stack = createNativeStackNavigator();
@@ -35,6 +37,20 @@ const App = () => {
           screenOptions={{
             headerShadowVisible: true,
           }}>
+          <Stack.Screen
+            name="SplashScreen"
+            options={{
+              header: () => null,
+            }}
+            component={SplashScreen}
+          />
+          <Stack.Screen
+            name="AppIntroSliders"
+            options={{
+              header: () => null,
+            }}
+            component={AppIntroSliders}
+          />
           <Stack.Screen
             name="Tabs"
             component={Tabs}
