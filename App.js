@@ -14,6 +14,7 @@ import Categories from './src/Screens/Categories/Categories';
 import SearchScreen from './src/Screens/Search/SearchScreen';
 import SplashScreen from './src/Screens/Splash/SplashScreen';
 import AppIntroSliders from './src/AppIntroSlider/AppIntroSlider';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const App = () => {
   const Stack = createNativeStackNavigator();
@@ -31,66 +32,68 @@ const App = () => {
   }, [])
 
   return (
-    <Provider store={store}>
-      <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={{
-            headerShadowVisible: true,
-          }}>
-          <Stack.Screen
-            name="SplashScreen"
-            options={{
-              header: () => null,
-            }}
-            component={SplashScreen}
-          />
-          <Stack.Screen
-            name="AppIntroSliders"
-            options={{
-              header: () => null,
-            }}
-            component={AppIntroSliders}
-          />
-          <Stack.Screen
-            name="Tabs"
-            component={Tabs}
-            options={{
-              header: () => null,
-              title: '',
-            }}
-          />
-          <Stack.Screen
-            name="ProductDetails"
-            component={ProductDetails}
-            options={{
-              // header:()=>null,
-              title: '',
-              headerRight: () => <Icon name="share-social-outline" size={25} />,
-            }}
-          />
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Provider store={store}>
+        <NavigationContainer>
+          <Stack.Navigator
+            screenOptions={{
+              headerShadowVisible: true,
+            }}>
+            <Stack.Screen
+              name="SplashScreen"
+              options={{
+                header: () => null,
+              }}
+              component={SplashScreen}
+            />
+            <Stack.Screen
+              name="AppIntroSliders"
+              options={{
+                header: () => null,
+              }}
+              component={AppIntroSliders}
+            />
+            <Stack.Screen
+              name="Tabs"
+              component={Tabs}
+              options={{
+                header: () => null,
+                title: '',
+              }}
+            />
+            <Stack.Screen
+              name="ProductDetails"
+              component={ProductDetails}
+              options={{
+                // header:()=>null,
+                title: '',
+                headerRight: () => <Icon name="share-social-outline" size={25} />,
+              }}
+            />
 
-          <Stack.Screen
-            name="Sell"
-            component={Sell}
-            options={{
-              title: '',
-            }} />
+            <Stack.Screen
+              name="Sell"
+              component={Sell}
+              options={{
+                title: '',
+              }} />
 
-          <Stack.Screen
-            name="Categories"
-            component={Categories}
-            options={{
-              title: 'Categories',
-            }} />
-          <Stack.Screen
-            name="SearchScreen"
-            component={SearchScreen}
-            options={{
-              header: () => null,
-            }} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </Provider>
+            <Stack.Screen
+              name="Categories"
+              component={Categories}
+              options={{
+                title: 'Categories',
+              }} />
+            <Stack.Screen
+              name="SearchScreen"
+              component={SearchScreen}
+              options={{
+                header: () => null,
+              }} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </Provider>
+    </GestureHandlerRootView>
   );
 };
 

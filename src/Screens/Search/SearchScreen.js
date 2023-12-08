@@ -34,10 +34,10 @@ const SearchScreen = ({ navigation, ...props }) => {
     const debouncedSearch = useCallback(
         debounce((text) => {
             console.log('Perform search with text:', text);
-            let params = {
-                search: text
-            }
-            dispatch(fetchSubCategoriesProducts(params))
+            // let params = {
+            //     search: text
+            // }
+            // dispatch(fetchSubCategoriesProducts(params))
         }, 200), []
     );
 

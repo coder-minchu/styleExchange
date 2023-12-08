@@ -3,11 +3,18 @@ import IconEntypo from 'react-native-vector-icons/Entypo';
 import LinearGradient from 'react-native-linear-gradient';
 import React from 'react';
 import { AppColor } from '../../utils/AppColor';
-import { height } from '../../utils/Dimensions/Dimension';
+import { height, responsiveFontSize } from '../../utils/Dimensions/Dimension';
+import { Fonts } from '../../utils/Fonts';
 
-const CustumTabButton = () => {
+const CustumTabButton = ({ isFocused }) => {
   return (
-    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+    <View style={{
+      justifyContent: 'center', alignItems: 'center',
+      position: 'relative',
+      zIndex: 999,
+      top: -25,
+      // backgroundColor:'red'
+    }}>
       <LinearGradient
         colors={AppColor.LinearGradient1}
         style={{
@@ -17,9 +24,7 @@ const CustumTabButton = () => {
           justifyContent: 'center',
           alignItems: 'center',
           elevation: 4,
-          position: 'relative',
-          zIndex: 999,
-          top: -10,
+
         }}>
         <View
           style={{
@@ -35,8 +40,18 @@ const CustumTabButton = () => {
           }}>
           <IconEntypo name="plus" size={height / 50}
             color="black" />
+
         </View>
       </LinearGradient>
+      <Text
+        style={{
+          color: isFocused ? AppColor.blueViolet : 'grey',
+          fontSize: responsiveFontSize(1.8),
+          fontFamily: Fonts.lobster.regular,
+          paddingTop: 5
+        }}>
+        Sell
+      </Text>
     </View>
   );
 };

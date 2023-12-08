@@ -52,7 +52,7 @@ export const AppColor = {
   ghostWhite: '#F8F8FF',
   gold: '#FFD700',
   smokeWhite: '#F5F5F5',
-  // LinearGradient1: ['#8E2DE2', '#4A00E0']
+  // LinearGradient1: ['#8E2DE2', '#4A00E0'],
   LinearGradient1: ['#2193b0', '#6dd5ed'],
   blue: '#4A00E0',
   // blueViolet: '#8A2BE2',
