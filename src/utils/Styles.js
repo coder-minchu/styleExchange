@@ -51,6 +51,13 @@ export const customStyles = {
         paddingVertical: 16,
         paddingHorizontal: 16,
         borderRadius: 10,
+    },
+    headingView: {
+        justifyContent: 'center',
+        paddingLeft: 10,
+        paddingBottom: 5,
+        borderBottomWidth: 0.5,
+        borderColor: AppColor.borderColor
     }
 
 }

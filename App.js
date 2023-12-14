@@ -15,6 +15,7 @@ import SearchScreen from './src/Screens/Search/SearchScreen';
 import SplashScreen from './src/Screens/Splash/SplashScreen';
 import AppIntroSliders from './src/AppIntroSlider/AppIntroSlider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import ProductListing from './src/Screens/ProductListing';
 
 const App = () => {
   const Stack = createNativeStackNavigator();
@@ -61,6 +62,16 @@ const App = () => {
                 title: '',
               }}
             />
+            <Stack.Screen
+              name="ProductListing"
+              component={ProductListing}
+              options={{
+                header: () => null,
+                // title: '',
+                // headerRight: () => <Icon name="share-social-outline" size={25} />,
+              }}
+            />
+
             <Stack.Screen
               name="ProductDetails"
               component={ProductDetails}

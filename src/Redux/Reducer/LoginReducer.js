@@ -5,7 +5,7 @@ const initialState = {
 const LoginReducer = (state = initialState, action) => {
   switch (action.type) {
     case 'LoginData':
-      return {...state, LOGINDATA: action.payload, loading: false};
+      return { ...state, LOGINDATA: action.payload, loading: false };
     default:
       return state;
   }

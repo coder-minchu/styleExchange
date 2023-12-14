@@ -1,187 +1,174 @@
-import {
-  FlatList,
-  Image,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import LinearGradient from 'react-native-linear-gradient';
+import { useDispatch, useSelector } from 'react-redux';
+import { CategoriesAction } from '../../Redux/Action/CategoriesAction';
 import { AppColor } from '../../utils/AppColor';
-import { height, responsiveFontSize, width } from '../../utils/Dimensions/Dimension';
 import { Fonts } from '../../utils/Fonts';
+import { responsiveFontSize, width } from '../../utils/Dimensions/Dimension';
+import { customStyles } from '../../utils/Styles';
 
 const Categories = ({ navigation }) => {
+  const dispatch = useDispatch();
 
+  const [activeButton, setActiveButton] = useState('Women');
   const [categoriesData, setCategoriesData] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const categoriesRes = useSelector((state) => state.CategoriesReducer.CATEGORIES);
 
-  const categoryListRef = useRef(null);
-
-  const handleCategoryPress = useCallback(async (categoryId, index) => {
-    setSelectedCategory(categoryId);
-
-    // Scroll to the selected category in the main category list horizontally
-    if (categoryListRef.current) {
-      categoryListRef.current.scrollToIndex({ index, animated: true });
-    }
+  useEffect(() => {
+    fetchCategories();
   }, []);
 
-  const CategoryItem = ({ item, index }) => {
-    return (
-      <TouchableOpacity
-        onPress={() => handleCategoryPress(item.id, index)}
-        style={[
-          styles.flatlistContainer,
-          { backgroundColor: item.id === selectedCategory ? '#E2D1C3' : null },
-        ]}>
-        <Image style={styles.imageStyle} source={{ uri: 'https://gkdukaan.com/wp-content/uploads/2023/10/61utX8kBDlL._UY695_.jpg' }} />
-        <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 5 }}>
-          <Text style={styles.textStyle}>yash</Text>
-        </View>
-      </TouchableOpacity>
-    );
+  useEffect(() => {
+    if (categoriesRes && activeButton) {
+      for (let item of categoriesRes?.categoriesTree) {
+        if (item.title === 'Woman' && activeButton === 'Women') {
+          setCategoriesData([categoriesRes?.categoriesTree[1]]);
+        } else {
+          setCategoriesData([categoriesRes?.categoriesTree[0]]);
+
+        }
+      }
+    }
+  }, [categoriesRes, activeButton]);
+
+  useEffect(() => {
+    if (categoriesRes) {
+      setCategoriesData([categoriesRes?.categoriesTree[1]]);
+    }
+  }, [categoriesRes]);
+
+  const fetchCategories = () => {
+    try {
+      dispatch(CategoriesAction());
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
   };
 
-  const navigateToProductList = useCallback((id) => {
-    navigation.navigate('ProductList', {
-      categoryId: id,
-    });
-  }, [navigation]);
+  const renderCategoryButton = () => (
+    <View style={styles.buttonRowContainer}>
+      {renderButton('Women', "Women's")}
+      {renderButton('Men', "Men's")}
+    </View>
+  );
 
-  const renderSubcategoryItem = ({ item }) => {
-    return (
-      <TouchableOpacity onPress={() => navigateToProductList(item.id)} style={styles.subcategoryContainer}>
-        <View style={styles.subcategoryImageContainer}>
-          <Image
-            style={styles.subcategoryImage}
-            source={{
-              uri: 'https://media-ik.croma.com/prod/https://media.croma.com/image/upload/v1694673510/Croma%20Assets/Communication/Mobiles/Images/300679_0_bsmo8n.png?tr=w-400',
-            }}
-          />
-        </View>
-        <Text numberOfLines={1} style={styles.subcategoryText}>
-          yash
+  const renderButton = (buttonType, label) => (
+    <LinearGradient
+      colors={activeButton === buttonType ? AppColor.LinearGradient1 : ['#F5F5F5', '#F8F8FF']}
+      style={styles.button}
+    >
+      <TouchableOpacity
+        style={styles.buttonTouchable}
+        onPress={() => setActiveButton(buttonType)}
+      >
+        <Text style={[styles.buttonText, { color: activeButton === buttonType ? AppColor.white : AppColor.black }]}>
+          {label}
         </Text>
       </TouchableOpacity>
+    </LinearGradient>
+  );
+
+  const renderSubCategoryCard = ({ item, index }) => {
+    return (
+      <View key={index} style={styles.subCategoriesContainer}>
+        <Text style={customStyles.heading}>{item.title}</Text>
+        <View style={styles.subCategoryContainer}>
+          {item.children.map((val, inx, arr) => (
+            <TouchableOpacity onPress={() => navigation.navigate('ProductListing')} key={inx} style={[styles.subCategory, arr.length > 4 && { height: '50%' }]}>
+              <Image
+                source={{ uri: 'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/005d8a86-0fb0-422a-9d1e-08a4cb885afb1701602275724-W--SAREES.jpg' }}
+                style={styles.subCategoryImage}
+              />
+              <Text numberOfLines={1} style={customStyles.semiBoldText}>{val.title}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
     );
   };
+
+  const renderCategoryItem = ({ item, index }) => (
+    <View key={index} style={styles.categoryItem}>
+      <FlatList
+        data={item.children}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={renderSubCategoryCard}
+      />
+
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.flatlist1}>
+      <View style={styles.buttonContainer}>{renderCategoryButton()}</View>
+      <View style={{ flex: 0.9 }}>
         <FlatList
-          ref={categoryListRef} // Assign the ref to the FlatList
-          data={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]}
-          keyExtractor={(_, index) => index.toString()}
-          renderItem={({ item, index }) => <CategoryItem item={item} index={index} />}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
-      <View style={styles.flatlist2}>
-        <FlatList
-          data={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]}
-          keyExtractor={(_, index) => index.toString()}
-          renderItem={renderSubcategoryItem}
-          numColumns={3}
-          showsVerticalScrollIndicator={false}
+          data={categoriesData}
+          keyExtractor={(item) => item.id}
+          renderItem={renderCategoryItem}
         />
       </View>
     </SafeAreaView>
   );
 };
 
-export default Categories;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'row',
-    // justifyContent:'center',
-    // alignItems:'center'
+    backgroundColor: AppColor.white,
   },
-  flatlist1: {
-    height: '100%',
-    width: width / 4,
-    // backgroundColor: '#E2D1C3',
-    backgroundColor: '#fff',
-    // justifyContent: 'center',
-    // alignItems: 'center',
-  },
-  flatlist2: {
-    height: height,
-    width: width / 1.34,
-    // backgroundColor: '#F5EEF8'
-  },
-  flatlistContainer: {
-    height: height / 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    // backgroundColor: 'grey',
-    borderBottomWidth: 0.3,
-    borderColor: 'lightgrey',
-    width: '98%',
-    alignSelf: 'center',
-    padding: 5
-  },
-  textStyle: {
-    fontFamily: Fonts.poppins.medium,
-    fontSize: responsiveFontSize(1.2),
-    color: AppColor.blueViolet
-
-  },
-  imageStyle: {
-    resizeMode: 'contain',
-    height: 55,
-    width: 55,
-  },
-  subcategoryContainer: {
-    justifyContent: 'center',
-    margin: 5,
-    width: '30%',
-    alignItems: 'center',
-    height: height / 7,
-  },
-
-  subcategoryImageContainer: {
-    height: width / 6,
-    width: width / 6,
-    borderRadius: 50,
-    backgroundColor: 'white',
-    justifyContent: 'center',
-    alignItems: 'center',
-    overflow: 'hidden',
-  },
-
-  subcategoryImage: {
-    resizeMode: 'contain',
-    height: 40,
-    width: 40,
-  },
-
-  subcategoryText: {
-    fontFamily: Fonts.poppins.medium,
-    fontSize: responsiveFontSize(1.35),
-    textAlign: 'center',
-    paddingTop: 5,
-  },
-  subcategoryRowContainer: {
-    flexDirection: 'row',
+  buttonContainer: {
     justifyContent: 'space-between',
     alignItems: 'center',
+    flex: 0.1,
   },
-  subcategoryImageSkeleton: {
-    height: 70,
-    width: 70,
-    backgroundColor: 'lightgray',
+  button: {
+    height: '60%',
+    width: '49%',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-
-  subcategoryTextSkeleton: {
-    width: '60%',
-    height: '10%',
-    marginTop: 5,
-    backgroundColor: 'lightgray',
-  }
-
+  buttonTouchable: {
+    height: '100%',
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonText: {
+    fontSize: responsiveFontSize(1.6),
+    fontFamily: Fonts.lobster.regular,
+    color: AppColor.white,
+  },
+  buttonRowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: '100%',
+  },
+  categoryItem: {
+    marginBottom: 20,
+  },
+  subCategoriesContainer: {
+    margin: 5,
+  },
+  subCategoryContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  subCategory: {
+    alignItems: 'center',
+    backgroundColor: AppColor.smokeWhite,
+    margin: 5,
+    height: '100%',
+    width: '22%',
+    // width: width/5,
+  },
+  subCategoryImage: {
+    width: 80,
+    height: 80,
+    resizeMode: 'contain',
+  },
 });
+
+export default Categories;

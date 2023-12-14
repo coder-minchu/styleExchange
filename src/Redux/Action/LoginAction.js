@@ -1,27 +1,29 @@
-import {BASE_URL} from '../../utils/BaseUrl';
+import { BASE_URL } from '../../utils/BaseUrl';
 import axios from 'axios';
 
 export const LoginAction = params => {
-  console.log('params', params);
-  var formdata = new FormData();
-  formdata.append('email', params.email);
-  formdata.append('password', params.password);
+  console.log('phoneNumber params', params);
 
+  var raw = JSON.stringify({
+    phoneNumber: `+91${params}`
+  });
   return async dispatch => {
     try {
-      const response = await fetch(`${BASE_URL}login-post`, {
+      const response = await fetch(`${BASE_URL}user/otplogin`, {
         method: 'POST', // Corrected the method name
-
-        body: formdata,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: raw,
       });
 
       const res = await response.json();
       console.log('Resssss....', res);
 
       if (res) {
-        dispatch({type: 'LoginData', payload: res});
+        dispatch({ type: 'LoginData', payload: res });
       } else {
-        dispatch({type: 'LoginData', payload: res});
+        dispatch({ type: 'LoginData', payload: res });
       }
     } catch (error) {
       console.error('Error in LoginData:', error);

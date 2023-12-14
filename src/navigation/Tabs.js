@@ -1,16 +1,19 @@
-import React, { useMemo, useRef, useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View, TouchableWithoutFeedback } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Account, Categories, Chats, Home, MyAds, Sell } from '../Screens';
 import { responsiveFontSize } from '../utils/Dimensions/Dimension';
 import { Fonts } from '../utils/Fonts';
 import { AppColor } from '../utils/AppColor';
-import BottomSheet from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import MyTabBar from './BottomTabs/MyTabBar';
 import Icon from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
 import { customStyles } from '../utils/Styles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch, useSelector } from 'react-redux';
+import { LoginAction } from '../Redux/Action/LoginAction';
+import { OtpVerifyAction } from '../Redux/Action/OtpVerifyAction';
 
 const Tab = createBottomTabNavigator();
 
@@ -32,7 +35,6 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
     padding: 10,
     borderWidth: 1,
     borderColor: 'gray',
@@ -46,11 +48,17 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    height: 40,
+    height: Platform.OS === 'ios' ? 30 : 40,
     marginLeft: 10,
     color: AppColor.black,
     fontSize: responsiveFontSize(1.2),
     fontFamily: Fonts.poppins.semiBold,
+  },
+  errorView: {
+    marginBottom: 20,
+    // backgroundColor: 'red',
+    width: '90%',
+    padding: 1
   },
   loginButton: {
     backgroundColor: AppColor.blueViolet,
@@ -106,13 +114,25 @@ const CustomPhoneInput = ({ value, onChangeText }) => (
   </View>
 );
 
-const CustomLoginButton = ({ phoneNumber, onPress }) => (
+const CustomLoginButton = ({ phoneNumber, onPress, loading }) => (
   <TouchableOpacity disabled={!phoneNumber} style={styles.loginButton} onPress={onPress}>
-    <Text style={styles.loginButtonText}>Login</Text>
+    {loading ? <ActivityIndicator size='small' color={AppColor.white} /> : <Text style={styles.loginButtonText}>Login</Text>}
   </TouchableOpacity>
 );
 
 const Tabs = ({ navigation }) => {
+  const dispatch = useDispatch();
+
+  const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
+  const [otpBottomSheetVisible, setOtpBottomSheetVisible] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [errorText, setErrorText] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [otp1, setOtp1] = useState('');
+  const [otp2, setOtp2] = useState('');
+  const [otp3, setOtp3] = useState('');
+  const [otp4, setOtp4] = useState('');
+
   const bottomSheetRef = useRef(null);
   const otpBottomSheetRef = useRef(null);
   const otp1Ref = useRef();
@@ -123,14 +143,56 @@ const Tabs = ({ navigation }) => {
   const loginSnapPoints = useMemo(() => ['25%', '50%'], []);
   const otpSnapPoints = useMemo(() => ['25%', '50%'], []);
 
-  const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
-  const [otpBottomSheetVisible, setOtpBottomSheetVisible] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [otp1, setOtp1] = useState('');
-  const [otp2, setOtp2] = useState('');
-  const [otp3, setOtp3] = useState('');
-  const [otp4, setOtp4] = useState('');
+  const loginRes = useSelector((state) => state.LoginReducer.LOGINDATA);
+  const otpRes = useSelector((state) => state.OtpVerifyReducer.OTPVERIFY);
+  console.log("🚀 ~ file: Tabs.js:139 ~ Tabs ~ loginRes:", otpRes)
 
+  useEffect(() => {
+    if (loginRes && loginRes.message === "login") {
+      setOtp1('');
+      setOtp2('');
+      setOtp3('');
+      setOtp4('');
+      setLoading(false)
+      closeLoginBottomSheet();
+      setOtpBottomSheetVisible(true);
+      otpBottomSheetRef.current?.expand();
+    } else {
+      setLoading(false)
+      setErrorText(loginRes.message)
+    }
+
+    return () => {
+
+    }
+  }, [loginRes])
+
+  useEffect(() => {
+    if (otpRes && otpRes.token && otpRes.message === "login successfully") {
+      setLoading(false)
+      navigateToDashboard(otpRes)
+    } else {
+      setLoading(false)
+      setErrorText(otpRes.message)
+      dispatch({ type: 'LoginData', payload: '' });
+    }
+
+    return () => {
+
+    }
+  }, [otpRes])
+
+  useEffect(() => {
+    if (errorText !== '') {
+      setErrorText('')
+    }
+  }, [phoneNumber, otp1, otp2, otp3, otp4])
+
+  const navigateToDashboard = async (otpRes) => {
+    await AsyncStorage.setItem('Token', JSON.stringify(otpRes.token));
+    closeOtpBottomSheet();
+    navigation.navigate('Tabs');
+  }
   const handleOtpChange = (text, ref) => {
     if (text !== '' && ref.current) {
       ref.current.focus();
@@ -149,181 +211,202 @@ const Tabs = ({ navigation }) => {
 
   const handleLogin = () => {
     console.log('Logging in with phone number:', phoneNumber);
-    closeLoginBottomSheet();
-    setOtpBottomSheetVisible(true);
-    otpBottomSheetRef.current?.expand();
+    try {
+      setLoading(true)
+      dispatch(LoginAction(phoneNumber))
+    } catch (error) {
+      Alert.alert(error.message)
+    }
   };
 
   const handleOtpContinue = async () => {
-    await AsyncStorage.setItem('Token', 'kajsdfksakjfksakfjaklsjflkjsadlkfkafkhiopaisfjijsfsjidiajsdf');
-    closeOtpBottomSheet();
-    navigation.navigate('Tabs');
+    try {
+      dispatch({ type: 'LoginData', payload: '' });
+      setLoading(true)
+      let otp = otp1 + otp2 + otp3 + otp4;
+      dispatch(OtpVerifyAction(otp))
+    } catch (error) {
+      Alert.alert(error.message)
+    }
+  };
+  const closeBottomSheet = () => {
+    if (bottomSheetVisible) {
+      closeLoginBottomSheet();
+    }
+    // if (otpBottomSheetVisible) {
+    //   closeOtpBottomSheet();
+    // }
   };
   return (
-    <View style={{ flex: 1 }}>
-      <Tab.Navigator
-        tabBar={props => <MyTabBar {...props} />}
-        screenOptions={{
-          tabBarStyle: { height: 80 },
-        }}>
-        <Tab.Screen
-          name="Home"
-          component={Home}
-          options={{
-            header: () => null,
-            title: '',
-            iconName: 'home',
-          }}
-        />
-        <Tab.Screen
-          name="Categories"
-          component={Categories}
-          options={{
-            header: () => null,
-            title: '',
-            iconName: 'heart-outline',
-            bottomSheetRef: bottomSheetRef,
-            bottomSheetVisible: setBottomSheetVisible
-          }}
-        />
+      <View style={{ flex: 1 }}>
+        <Tab.Navigator
+          tabBar={props => <MyTabBar {...props} />}
+          screenOptions={{
+            tabBarStyle: { height: 80 },
+          }}>
+          <Tab.Screen
+            name="Home"
+            component={Home}
+            options={{
+              header: () => null,
+              title: '',
+              iconName: 'home',
+            }}
+          />
+          <Tab.Screen
+            name="Categories"
+            component={Categories}
+            options={{
+              header: () => null,
+              title: 'Categories',
+              iconName: 'heart-outline',
+              bottomSheetRef: bottomSheetRef,
+              bottomSheetVisible: setBottomSheetVisible
+            }}
+          />
 
-        <Tab.Screen
-          name="Sell"
-          component={Sell}
-          options={{
-            header: () => null,
-            title: '',
-            iconName: 'heart-outline',
-            bottomSheetRef: bottomSheetRef,
-            bottomSheetVisible: setBottomSheetVisible
-          }}
-        />
+          <Tab.Screen
+            name="Sell"
+            component={Sell}
+            options={{
+              header: () => null,
+              title: '',
+              iconName: 'heart-outline',
+              bottomSheetRef: bottomSheetRef,
+              bottomSheetVisible: setBottomSheetVisible
+            }}
+          />
 
-        <Tab.Screen
-          name="Chats"
-          component={Chats}
-          options={{
-            header: () => null,
-            title: '',
-            iconName: 'chatbubble-outline',
-            bottomSheetRef: bottomSheetRef,
-            bottomSheetVisible: setBottomSheetVisible
-          }}
-        />
+          <Tab.Screen
+            name="Chats"
+            component={Chats}
+            options={{
+              header: () => null,
+              title: '',
+              iconName: 'chatbubble-outline',
+              bottomSheetRef: bottomSheetRef,
+              bottomSheetVisible: setBottomSheetVisible
+            }}
+          />
 
-        <Tab.Screen
-          name="Account"
-          component={Account}
-          options={{
-            header: () => null,
-            title: '',
-            iconName: 'person-outline',
-            bottomSheetRef: bottomSheetRef,
-            bottomSheetVisible: setBottomSheetVisible
-          }}
-        />
-      </Tab.Navigator>
-      {bottomSheetVisible && (
-        <BottomSheet ref={bottomSheetRef} index={1} snapPoints={loginSnapPoints} onClose={closeLoginBottomSheet}>
-          <LinearGradient colors={AppColor.LinearGradient1} style={styles.container}>
-            <TouchableOpacity
-              onPress={closeLoginBottomSheet}
-              style={{
-                position: 'absolute',
-                top: Platform.OS === 'ios' ? 30 : 20,
-                right: Platform.OS === 'ios' ? 20 : 15,
-              }}>
-              <Icon
-                name="close-outline"
-                size={30}
-                color="white"
-              />
-            </TouchableOpacity>
-            <Text style={[customStyles.boldText, { color: AppColor.white, fontSize: responsiveFontSize(2.5), padding: 15 }]}>
-              India's #1 Online Thrift Store
-            </Text>
-            <CustomPhoneInput value={phoneNumber} onChangeText={setPhoneNumber} />
-            <CustomLoginButton phoneNumber={phoneNumber} onPress={handleLogin} />
-          </LinearGradient>
+          <Tab.Screen
+            name="Account"
+            component={Account}
+            options={{
+              header: () => null,
+              title: '',
+              iconName: 'person-outline',
+              bottomSheetRef: bottomSheetRef,
+              bottomSheetVisible: setBottomSheetVisible
+            }}
+          />
+        </Tab.Navigator>
+        {bottomSheetVisible && (
+          <BottomSheet ref={bottomSheetRef} index={1} snapPoints={loginSnapPoints} onClose={closeLoginBottomSheet} backdropComponent={(props) => <BottomSheetBackdrop {...props} />}>
+            <LinearGradient colors={AppColor.LinearGradient1} style={styles.container}>
+              <TouchableOpacity
+                onPress={closeLoginBottomSheet}
+                style={{
+                  position: 'absolute',
+                  top: Platform.OS === 'ios' ? 30 : 20,
+                  right: Platform.OS === 'ios' ? 20 : 15,
+                }}>
+                <Icon
+                  name="close-outline"
+                  size={30}
+                  color="white"
+                />
+              </TouchableOpacity>
+              <Text style={[customStyles.boldText, { color: AppColor.white, fontSize: responsiveFontSize(2.5), padding: 15 }]}>
+                India's #1 Online Thrift Store
+              </Text>
+              <CustomPhoneInput value={phoneNumber} onChangeText={setPhoneNumber} />
+              <View style={styles.errorView}>
+                {errorText && <Text style={[customStyles.simpleText, { fontSize: responsiveFontSize(1), paddingLeft: 2, color: AppColor.crimson }]}>{errorText}</Text>}
+              </View>
+              <CustomLoginButton phoneNumber={phoneNumber} onPress={handleLogin} loading={loading} />
+            </LinearGradient>
 
-        </BottomSheet>
-      )}
-      {otpBottomSheetVisible && (
-        <BottomSheet ref={otpBottomSheetRef} index={1} snapPoints={otpSnapPoints} onClose={closeOtpBottomSheet}>
-          <LinearGradient colors={AppColor.LinearGradient1} style={styles.container}>
-            <TouchableOpacity
-              onPress={() => {
-                closeOtpBottomSheet();
-                setBottomSheetVisible(true);
-                bottomSheetRef.current?.expand();
-              }}
-              style={{
-                position: 'absolute',
-                top: 20,
-                left: 20,
-              }}
-            >
-              <Text style={{ color: 'white', fontSize: 16 }}>Back</Text>
-            </TouchableOpacity>
-
-            <Text style={[customStyles.boldText, { color: AppColor.white, fontSize: responsiveFontSize(2.5), padding: 20 }]}>Enter OTP</Text>
-
-            <View style={styles.inputContainer1}>
-              <TextInput
-                placeholder="_"
-                style={styles.otpinput}
-                maxLength={1}
-                keyboardType="numeric"
-                value={otp1}
-                onChangeText={(text) => {
-                  setOtp1(text);
-                  handleOtpChange(text, otp2Ref);
+          </BottomSheet>
+        )}
+        {otpBottomSheetVisible && (
+          <BottomSheet ref={otpBottomSheetRef} index={1} snapPoints={otpSnapPoints} onClose={closeOtpBottomSheet}backdropComponent={(props) => <BottomSheetBackdrop {...props} />}>
+            <LinearGradient colors={AppColor.LinearGradient1} style={styles.container}>
+              <TouchableOpacity
+                onPress={() => {
+                  setErrorText('')
+                  closeOtpBottomSheet();
+                  setBottomSheetVisible(true);
+                  bottomSheetRef.current?.expand();
                 }}
-                ref={otp1Ref}
-              />
-              <TextInput
-                placeholder="_"
-                style={styles.otpinput}
-                maxLength={1}
-                keyboardType="numeric"
-                value={otp2}
-                onChangeText={(text) => {
-                  setOtp2(text);
-                  handleOtpChange(text, otp3Ref);
+                style={{
+                  position: 'absolute',
+                  top: 20,
+                  left: 20,
                 }}
-                ref={otp2Ref}
-              />
-              <TextInput
-                placeholder="_"
-                style={styles.otpinput}
-                maxLength={1}
-                keyboardType="numeric"
-                value={otp3}
-                onChangeText={(text) => {
-                  setOtp3(text);
-                  handleOtpChange(text, otp4Ref);
-                }}
-                ref={otp3Ref}
-              />
-              <TextInput
-                placeholder="_"
-                style={styles.otpinput}
-                maxLength={1}
-                keyboardType="numeric"
-                value={otp4}
-                onChangeText={(text) => setOtp4(text)}
-                ref={otp4Ref}
-              />
-            </View>
+              >
+                <Text style={{ color: 'white', fontSize: 16 }}>Back</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity onPress={handleOtpContinue} style={styles.contineuButton} >
-              <Text style={[customStyles.boldText, { color: AppColor.white, fontSize: responsiveFontSize(2) }]}>Continue</Text>
-            </TouchableOpacity>
-          </LinearGradient>
-        </BottomSheet>
-      )}
-    </View>
+              <Text style={[customStyles.boldText, { color: AppColor.white, fontSize: responsiveFontSize(2.5), padding: 20 }]}>Enter OTP</Text>
 
+              <View style={styles.inputContainer1}>
+                <TextInput
+                  placeholder="_"
+                  style={[styles.otpinput, { borderColor: errorText ? 'red' : 'white' }]}
+                  maxLength={1}
+                  keyboardType="numeric"
+                  value={otp1}
+                  onChangeText={(text) => {
+                    setOtp1(text);
+                    handleOtpChange(text, otp2Ref);
+                  }}
+                  ref={otp1Ref}
+                />
+                <TextInput
+                  placeholder="_"
+                  style={[styles.otpinput, { borderColor: errorText ? 'red' : 'white' }]}
+                  maxLength={1}
+                  keyboardType="numeric"
+                  value={otp2}
+                  onChangeText={(text) => {
+                    setOtp2(text);
+                    handleOtpChange(text, otp3Ref);
+                  }}
+                  ref={otp2Ref}
+                />
+                <TextInput
+                  placeholder="_"
+                  style={[styles.otpinput, { borderColor: errorText ? 'red' : 'white' }]}
+                  maxLength={1}
+                  keyboardType="numeric"
+                  value={otp3}
+                  onChangeText={(text) => {
+                    setOtp3(text);
+                    handleOtpChange(text, otp4Ref);
+                  }}
+                  ref={otp3Ref}
+                />
+                <TextInput
+                  placeholder="_"
+                  style={[styles.otpinput, { borderColor: errorText ? 'red' : 'white' }]}
+                  maxLength={1}
+                  keyboardType="numeric"
+                  value={otp4}
+                  onChangeText={(text) => setOtp4(text)}
+                  ref={otp4Ref}
+                />
+              </View>
+
+              <TouchableOpacity disabled={otp1 && otp2 && otp3 && otp4 ? false : true} onPress={handleOtpContinue} style={styles.contineuButton} >
+                {loading ? <ActivityIndicator size='small' color={AppColor.white} /> :
+                  <Text style={[customStyles.boldText, { color: AppColor.white, fontSize: responsiveFontSize(2) }]}>Continue</Text>
+                }
+              </TouchableOpacity>
+            </LinearGradient>
+          </BottomSheet>
+        )}
+      </View>
   );
 };
 

@@ -7,19 +7,53 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import OlxNavbar from '../../Components/Navbar/OlxNavbar';
-import {AppColor} from '../../utils/AppColor';
+import { AppColor } from '../../utils/AppColor';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Option from '../../Components/Account/Option';
-import {width} from '../../utils/Dimensions/Dimension';
+import { width } from '../../utils/Dimensions/Dimension';
 import BlackButton from '../../Components/Button/BlackButton';
 import { Fonts } from '../../utils/Fonts';
+import { useFocusEffect } from '@react-navigation/native';
 
-const Account = () => {
+const Account = ({state, descriptors, navigation }) => {
+console.log("🚀 ~ file: Account.js:21 ~ Account ~ state:", state)
+console.log("🚀 ~ file: Account.js:21 ~ Account ~ descriptors:", descriptors)
+
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     let login = true;
+  //     if (login) {
+  //       console.log('bottom sheet ');
+  //     } else {
+  //       console.log('bottom sheet not open  ');
+
+  //     }
+  //   }, [])
+  // )
+  // React.useEffect(() => {
+  //   const unsubscribe = navigation.addListener('tabLongPress', (e) => {
+  //     console.log('longpress');
+  //   });
+
+  //   return () => unsubscribe.remove();
+  // }, [navigation]);
+
+  // React.useEffect(() => {
+  //   const unsubscribe = navigation.addListener('tabPress', (e) => {
+  //     // Prevent default behavior
+  //     // e.preventDefault();
+  //     console.log('tap press');
+
+  //   });
+
+  //   return () => unsubscribe.remove();
+  // }, [navigation]);
+
   return (
     <View>
-      <OlxNavbar />
+      {/* <OlxNavbar />
       <ScrollView>
         <View
           style={{
@@ -50,8 +84,8 @@ const Account = () => {
             <BlackButton title="View and Edit Profile" />
           </View>
         </TouchableOpacity>
-        <View style={{padding: 15, marginTop: 20, gap: 10}}>
-          <Text style={{fontSize: 18, color: AppColor.black}}>
+        <View style={{ padding: 15, marginTop: 20, gap: 10 }}>
+          <Text style={{ fontSize: 18, color: AppColor.black }}>
             5 steps left
           </Text>
           <View
@@ -102,7 +136,7 @@ const Account = () => {
             iconAerrow="chevron-forward-outline"
           />
         </View>
-      </ScrollView>
+      </ScrollView> */}
     </View>
   );
 };
