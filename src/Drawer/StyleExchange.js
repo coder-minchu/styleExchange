@@ -22,6 +22,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ProductListAction } from '../Redux/Action/GetAllProductListAction';
 import SortBottomSheet from '../Components/BottomSheet/SortBottomSheet';
 import FilterBottomSheet from '../Components/BottomSheet/FilterBottomSheet';
+import Header from '../Components/Header/Header';
 
 const dummyData = [
     {
@@ -323,7 +324,8 @@ const StyleExchange = ({ navigation }) => {
         const hexagonSize = '100%'; // Customize the size of the hexagon as needed
 
         return (
-            <View style={styles.subCategoryContainer}>
+            <TouchableOpacity onPress={() => navigation.navigate('ProductListing',
+                { search: "" })} style={styles.subCategoryContainer}>
                 <View style={styles.hexagon}>
                     <ImageBackground
                         resizeMode='contain'
@@ -332,7 +334,7 @@ const StyleExchange = ({ navigation }) => {
                     >
                     </ImageBackground>
                 </View>
-            </View>
+            </TouchableOpacity>
         );
     };
 
@@ -367,7 +369,7 @@ const StyleExchange = ({ navigation }) => {
                 <View style={styles.card} >
                     <Image
                         source={{
-                            uri: 'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/f415d418-10f2-4b96-8ea8-2b6c22a8781a1701601965496-M--TSHIRT.jpg'
+                            uri: item && item.upload && item.upload[0]
                         }}
                         style={styles.image}
                     />
@@ -524,68 +526,72 @@ const StyleExchange = ({ navigation }) => {
     }, [productList]);
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.searchContainer}>
-                <View style={styles.inputContainer}>
-                    <TouchableOpacity onPress={handleSearch}>
-                        <Icon
-                            name="search"
-                            size={height / 50}
-                            color={AppColor.titleColor}
+            <Header />
+            <SafeAreaView style={[styles.container, { backgroundColor: AppColor.white }]}>
+                <View style={styles.searchContainer}>
+                    <View style={styles.inputContainer}>
+                        <TouchableOpacity onPress={handleSearch}>
+                            <Icon
+                                name="search"
+                                size={height / 50}
+                                color={AppColor.titleColor}
+                            />
+                        </TouchableOpacity>
+                        <TextInput
+                            ref={inputRef}
+                            placeholder="Search item or member"
+                            placeholderTextColor={AppColor.titleColor}
+                            value={text}
+                            onChangeText={setText}
+                            style={styles.input}
+                            onFocus={searchBottomSheetOpen}
                         />
-                    </TouchableOpacity>
-                    <TextInput
-                        ref={inputRef}
-                        placeholder="Search item or member"
-                        placeholderTextColor={AppColor.titleColor}
-                        value={text}
-                        onChangeText={setText}
-                        style={styles.input}
-                        onFocus={searchBottomSheetOpen}
-                    />
-                </View>
-                <View style={styles.buttonContainer}>
-                    {renderCategoryButton()}
-                </View>
-            </View>
-            <View style={styles.FlatListcontainer}>
-                <FlatList
-                    numColumns={2}
-                    data={mainData}
-                    keyExtractor={(_, index) => index.toString()}
-                    renderItem={renderItem}
-                    onEndReached={onEndReached}
-                    onEndReachedThreshold={0.1}
-                    onScroll={handleScroll}
-                />
-                {isFilterContainerSticky && (
-                    <View
-                        style={[styles.FilterContainer, { position: 'absolute', top: 0, width: '100%' }]}>
-                        <TouchableOpacity onPress={openBottomSheet} style={styles.filtersView}>
-                            <Text style={customStyles.boldText}>Sort</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={openBottomSheetFilter} style={styles.filtersView}>
-                            <Text style={customStyles.boldText}>filter</Text>
-                        </TouchableOpacity>
                     </View>
+                    <View style={styles.buttonContainer}>
+                        {renderCategoryButton()}
+                    </View>
+                </View>
+                <View style={styles.FlatListcontainer}>
+                    <FlatList
+                        numColumns={2}
+                        data={mainData}
+                        keyExtractor={(_, index) => index.toString()}
+                        renderItem={renderItem}
+                        onEndReached={onEndReached}
+                        onEndReachedThreshold={0.1}
+                        onScroll={handleScroll}
+                    />
+                    {isFilterContainerSticky && (
+                        <View
+                            style={[styles.FilterContainer, { position: 'absolute', top: 0, width: '100%' }]}>
+                            <TouchableOpacity onPress={openBottomSheet} style={styles.filtersView}>
+                                <Text style={customStyles.boldText}>Sort</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={openBottomSheetFilter} style={styles.filtersView}>
+                                <Text style={customStyles.boldText}>filter</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                </View>
+                {bottomSheetVisible && (
+                    <SortBottomSheet
+                        closeBottomSheet={closeBottomSheet}
+                        handleSortOption={handleSortOption}
+                        sortSnapPoints={sortSnapPoints}
+                        bottomSheetRef={bottomSheetRef}
+                    />
                 )}
-            </View>
-            {bottomSheetVisible && (
-                <SortBottomSheet
-                    closeBottomSheet={closeBottomSheet}
-                    handleSortOption={handleSortOption}
-                    sortSnapPoints={sortSnapPoints}
-                    bottomSheetRef={bottomSheetRef}
-                />
-            )}
-            {bottomSheetVisibleFilter && (
-                <FilterBottomSheet
-                    bottomSheetFilterRef={bottomSheetFilterRef}
-                    closeBottomSheetFilter={closeBottomSheetFilter}
-                    handleFilterOption={handleFilterOption}
-                    FilterSnapPoints={FilterSnapPoints}
-                />
-            )}
+                {bottomSheetVisibleFilter && (
+                    <FilterBottomSheet
+                        bottomSheetFilterRef={bottomSheetFilterRef}
+                        closeBottomSheetFilter={closeBottomSheetFilter}
+                        handleFilterOption={handleFilterOption}
+                        FilterSnapPoints={FilterSnapPoints}
+                    />
+                )}
+            </SafeAreaView>
         </SafeAreaView>
+
     );
 };
 
@@ -594,7 +600,7 @@ export default StyleExchange;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: AppColor.white,
+        backgroundColor: AppColor.blueViolet,
     },
     FlatListcontainer: {
         flex: 2,

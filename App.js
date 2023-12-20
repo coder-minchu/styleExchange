@@ -16,6 +16,9 @@ import SplashScreen from './src/Screens/Splash/SplashScreen';
 import AppIntroSliders from './src/AppIntroSlider/AppIntroSlider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import ProductListing from './src/Screens/ProductListing';
+import { height } from './src/utils/Dimensions/Dimension';
+import WishList from './src/Screens/WishList';
+import EditProfile from './src/Screens/Account/EditProfile';
 
 const App = () => {
   const Stack = createNativeStackNavigator();
@@ -71,17 +74,33 @@ const App = () => {
                 // headerRight: () => <Icon name="share-social-outline" size={25} />,
               }}
             />
-
+            <Stack.Screen
+              name="WishList"
+              component={WishList}
+              options={{
+                // header: () => null,
+                title: 'WishList',
+                // headerRight: () => <Icon name="share-social-outline" size={25} />,
+              }}
+            />
             <Stack.Screen
               name="ProductDetails"
               component={ProductDetails}
               options={{
                 // header:()=>null,
                 title: '',
-                headerRight: () => <Icon name="share-social-outline" size={25} />,
+                headerRight: () => <Icon name="share-social-outline" color="black" size={height / 50} />,
               }}
             />
-
+            <Stack.Screen
+              name="EditProfile"
+              component={EditProfile}
+              options={{
+                // header:()=>null,
+                title: 'User Profile',
+                // headerRight: () => <Icon name="share-social-outline" color="black" size={height / 50} />,
+              }}
+            />
             <Stack.Screen
               name="Sell"
               component={Sell}

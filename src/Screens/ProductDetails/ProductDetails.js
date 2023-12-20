@@ -1,199 +1,179 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  ScrollView,
-  Image,
-  Dimensions,
-} from 'react-native';
-import React from 'react';
-import Icon from 'react-native-vector-icons/Ionicons';
-import Slider from '../../Components/Slider';
-import {Fonts} from '../../utils/Fonts';
-import {width} from '../../utils/Dimensions/Dimension';
-import ProductDetailsNabvar from '../../Components/Navbar/ProductDetailsNavbar';
-import {Button} from 'react-native';
-import {TouchableOpacity} from 'react-native';
+import React, { useRef, useState } from 'react';
+import { View, StyleSheet, ScrollView, Image, Dimensions, TouchableOpacity } from 'react-native';
+import { Text, Button, Divider, Title, Paragraph, IconButton, Colors } from 'react-native-paper';
+import { AppColor } from '../../utils/AppColor';
+import { responsiveFontSize, width } from '../../utils/Dimensions/Dimension';
+import { Fonts } from '../../utils/Fonts';
 
-// const Data = [
-//   {
-//     id: 1,
-//     image: 'https://cdn-icons-png.flaticon.com/512/1168/1168014.png',
-//     title: 'OLX AUTOS(CARS)',
-//     price: 'Rs-20000',
-//     location: 'Vijay Nagar',
-//   },
-//   {
-//     id: 2,
-//     image: 'https://cdn-icons-png.flaticon.com/512/1168/1168014.png',
-//     title: 'OLX AUTOS(CARS)',
-//     price: 'Rs-20000',
-//     location: 'Vijay Nagar',
-//   },
-//   {
-//     id: 3,
-//     image: 'https://cdn-icons-png.flaticon.com/512/1168/1168014.png',
-//     title: 'OLX AUTOS(CARS)',
-//     price: 'Rs-20000',
-//     location: 'Vijay Nagar',
-//   },
-//   {
-//     id: 4,
-//     image: 'https://cdn-icons-png.flaticon.com/512/1168/1168014.png',
-//     title: 'OLX AUTOS(CARS)',
-//     price: 'Rs-20000',
-//     location: 'Vijay Nagar',
-//   },
-// ];
+const ProductDetails = ({ route }) => {
+  const { item } = route.params;
+  console.log("🚀 ~ file: ProductDetails.js:10 ~ ProductDetails ~ item:", item)
+  const [activeIndex, setActiveIndex] = useState(0);
+  const scrollViewRef = useRef();
 
-const ProductDetails = ({...props}) => {
-  let Data = props.route.params.item;
-  // console.log('props... ', Data);
-  const sliderStyles = {
-    containerStyle: {
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    bannerContainerStyle: {
-      height: width / 2,
-      width: width,
-      alignItems: 'center',
-      justifyContent: 'center',
-      alignSelf: 'center',
-    },
-    bannerImageStyle: {resizeMode: 'contain'},
-    // indicatorContainerStyle: { bottom: 20 },
-    // indicatorStyle: { backgroundColor: 'blue' },
+  const handleScroll = (event) => {
+    const offset = event.nativeEvent.contentOffset.x;
+    const index = Math.round(offset / Dimensions.get('window').width);
+    setActiveIndex(index);
   };
+
+  const renderImages = () => {
+    return item.upload.map((image, index) => (
+      <Image key={index} source={{ uri: image }} style={styles.sliderImage} />
+    ));
+  };
+
+  const scrollToIndex = (index) => {
+    scrollViewRef.current.scrollTo({ x: Dimensions.get('window').width * index, animated: true });
+  };
+
   return (
-    <View style={{flex: 1}}>
+    <View style={styles.container}>
       <ScrollView>
-        <View
-          style={{
-            width: '100%',
-          }}>
-          <Slider data={[Data]} {...sliderStyles} />
-          <View
-            style={{
-              padding: 10,
-              borderBottomWidth: 1,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              // paddingBottom:20
-            }}>
-            <View>
-              <Text style={{fontSize: 16, padding: 2, color: 'black'}}>
-                {props.route.params.item.price}
-              </Text>
-              <Text style={{fontSize: 16, padding: 2}}>
-                {props.route.params.item.title}
-              </Text>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginTop: 15,
-                }}>
-                <Icon name="location" size={20} />
-                <Text style={{fontSize: 16, padding: 2}}>
-                  {props.route.params.item.location}
-                </Text>
-              </View>
-            </View>
-            <Icon name="heart-outline" size={25} />
-          </View>
-          <View style={{padding: 10, borderBottomWidth: 1}}>
-            <Text style={{fontSize: 20, color: 'black'}}>Details</Text>
-          </View>
-          <View style={{padding: 10}}>
-            <Text
-              style={{
-                fontSize: 18,
-                color: 'black',
-                fontFamily: Fonts.regular,
-                fontWeight: 'bold',
-              }}>
-              Description
-            </Text>
-            <Text
-              style={{
-                fontSize: 15,
-                fontFamily: Fonts.regular,
-                textAlign: 'justify',
-                padding: 5,
-              }}>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Cupiditate provident doloribus impedit? Assumenda consequatur ab
-              voluptates aspernatur cupiditate iusto, dolorem ea maiores
-              incidunt, accusantium eius cum nisi temporibus! Impedit, ex?Lorem
-              ipsum dolor sit amet consectetur adipisicing elit. Cupiditate
-              provident doloribus impedit? Assumenda consequatur ab voluptates
-              aspernatur cupiditate iusto, dolorem ea maiores incidunt,
-              accusantium eius cum nisi temporibus! Impedit, ex?Lorem ipsum
-              dolor sit amet consectetur adipisicing elit. Cupiditate provident
-              doloribus impedit? Assumenda consequatur ab voluptates aspernatur
-              cupiditate iusto, dolorem ea maiores incidunt, accusantium eius
-              cum nisi temporibus! Impedit, ex? it amet consectetur adipisicing
-              elit. Cupiditate provident doloribus impedit? Assumenda
-              consequatur ab voluptates aspernatur cupiditate iusto, dolorem ea
-              maiores incidunt, accusantium eius cum nisi temporibus! Impedit,
-              ex?Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Cupiditate provident doloribus impedit? Assumenda consequatur ab
-              voluptates aspernatur cupiditate iusto, dolorem ea maiores
-              incidunt, accusantium eius cum nisi temporibus! Impedit, ex? it
-              amet consectetur adipisicing elit. Cupiditate provident doloribus
-              impedit? Assumenda consequatur ab voluptates aspernatur cupiditate
-              iusto, dolorem ea maiores incidunt, accusantium eius cum nisi
-              temporibus! Impedit, ex?Lorem ipsum dolor sit amet consectetur
-              adipisicing elit. Cupiditate provident doloribus impedit?
-              Assumenda consequatur ab voluptates aspernatur cupiditate iusto,
-              dolorem ea maiores incidunt, accusantium eius cum nisi temporibus!
-              Impedit, ex? v
-            </Text>
+        <View>
+          <ScrollView
+            ref={scrollViewRef}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onScroll={handleScroll}
+            scrollEventThrottle={200}
+            decelerationRate="fast">
+            {renderImages()}
+          </ScrollView>
+
+          <View style={styles.pagination}>
+            {item.upload.map((_, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.paginationDot,
+                  { backgroundColor: index === activeIndex ? AppColor.blueViolet : AppColor.grey },
+                ]}
+                onPress={() => scrollToIndex(index)}
+              />
+            ))}
           </View>
         </View>
+
+        <View style={styles.productDetailsContainer}>
+          <Title style={styles.title}>{item.title}</Title>
+          <Text style={styles.price}>₹{item.price}</Text>
+          <Text style={styles.condition}>{item.condition}</Text>
+
+          <Divider style={styles.divider} />
+
+          <View style={styles.locationContainer}>
+            <Title style={styles.title}>Location</Title>
+            <Paragraph>{item.city}, {item.state}</Paragraph>
+            {/* Display more location details as needed */}
+          </View>
+
+          <Divider style={styles.divider} />
+
+          <View style={styles.depositContainer}>
+            <Title style={styles.title}>Deposit Amount</Title>
+            <Paragraph>₹{item.depositAmount}</Paragraph>
+            {/* Display more deposit details as needed */}
+          </View>
+
+          {/* Add more necessary details sections as needed */}
+
+          <Divider style={styles.divider} />
+
+          <View style={styles.descriptionContainer}>
+            <Title style={styles.title}>Description</Title>
+            <Paragraph>{item.description}</Paragraph>
+          </View>
+
+          <Divider style={styles.divider} />
+
+          <View style={styles.detailsContainer}>
+            <Title style={styles.title}>Details</Title>
+            <Paragraph>{item.details}</Paragraph>
+          </View>
+
+          <Divider style={styles.divider} />
+
+          <View style={styles.sellerInfoContainer}>
+            <Title style={styles.title}>Seller Information</Title>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              {/* Add seller profile picture if available */}
+              <Image source={{ uri: 'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/fe5c2d1e-716c-4cec-a6bf-934b5e6bcc191701602275798-W--DRESSES.jpg' }} style={{ width: 40, height: 40, borderRadius: 20, marginRight: 10 }} />
+              <Text>Seller: {item.user_Id}</Text>
+              {/* Add more seller information fields as needed */}
+            </View>
+          </View>
+
+          {/* Add more sections or components as needed */}
+
+          <Button
+            icon={({ size, color }) => <IconButton icon="message" color={color} size={size} />}
+            mode="contained"
+            onPress={() => console.log('Pressed')}>
+            Chat with Seller
+          </Button>
+        </View>
       </ScrollView>
-      <View
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          backgroundColor: 'white',
-          flexDirection: 'row',
-          justifyContent: 'space-evenly',
-          alignItems: 'center',
-          height: width / 7,
-          padding: 8,
-          gap: 10,
-        }}>
-        <TouchableOpacity
-          style={{
-            width: width / 2.1,
-            height: '100%',
-            backgroundColor: 'black',
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderRadius: 6,
-          }}>
-          <Text style={{fontWeight: 'bold', color: 'white'}}>Chats</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{
-            width: width / 2.1,
-            height: '100%',
-            backgroundColor: 'black',
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderRadius: 6,
-          }}>
-          <Text style={{fontWeight: 'bold', color: 'white'}}>Call</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 };
 
-export default ProductDetails;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  sliderImage: {
+    width: width,
+    height: width - 100,
+    resizeMode: 'contain',
+    // backgroundColor: 'red'
+  },
+  pagination: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    padding: 5
+    // justifyContent:'center'
+  },
+  paginationDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginHorizontal: 4,
+  },
+  productDetailsContainer: {
+    padding: 16,
+    // backgroundColor: 'orange'
+  },
+  title: {
+    fontSize: responsiveFontSize(2),
+    marginBottom: 8,
+    fontFamily: Fonts.poppins.bold
+  },
+  price: {
+    fontSize: responsiveFontSize(2) - 6,
+    marginBottom: 8,
+    fontFamily: Fonts.poppins.medium
+  },
+  condition: {
+    fontSize: responsiveFontSize(2) - 8,
+    color: AppColor.darkGreen,
+    marginBottom: 16,
+    fontFamily: Fonts.poppins.semiBold
+  },
+  divider: {
+    marginVertical: 10,
+  },
+  descriptionContainer: {
+    marginBottom: 10,
+  },
+  detailsContainer: {
+    marginBottom: 10,
+  },
+  sellerInfoContainer: {
+    marginBottom: 16,
+  },
 
-const styles = StyleSheet.create({});
+});
+
+export default ProductDetails;

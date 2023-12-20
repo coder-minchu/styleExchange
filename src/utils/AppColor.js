@@ -54,6 +54,7 @@ export const AppColor = {
   smokeWhite: '#F5F5F5',
   // LinearGradient1: ['#8E2DE2', '#4A00E0'],
   LinearGradient1: ['#2193b0', '#6dd5ed'],
+  // LinearGradient1: ['#4F86F7', "#2962A9"],
   blue: '#4A00E0',
   // blueViolet: '#8A2BE2',
   blueViolet: '#2193b0'

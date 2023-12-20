@@ -6,6 +6,9 @@ import { AppColor } from '../../utils/AppColor';
 import { customStyles } from '../../utils/Styles';
 import { ActivityIndicator } from 'react-native-paper';
 import ProductCard from './ProductCard';
+import { useNavigation } from '@react-navigation/native';
+import { AddWishlistAction } from '../../Redux/Action/WishlistAction';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const numColumns = 2;
 
@@ -13,6 +16,7 @@ const numColumns = 2;
 const ProductList = React.memo(({ search }) => {
 
     const dispatch = useDispatch();
+    const navigation = useNavigation();
     const [productList, setProductList] = useState([]);
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
@@ -23,6 +27,17 @@ const ProductList = React.memo(({ search }) => {
 
     const productListRes = useSelector((state) => state.ProductListReducer.PRODUCTLIST);
     const subLoadingProductsRes = useSelector((state) => state.ProductListReducer.loading);
+    const wishlistProductRes = useSelector(state => state.WishlistReducer.ADDWISHLIST);
+    console.log("🚀 ~ file: ProductList.js:31 ~ ProductList ~ wishlistProductRes:", wishlistProductRes)
+
+    useEffect(() => {
+        if (wishlistProductRes && wishlistProductRes.message) {
+
+        }
+        return () => {
+            dispatch({ type: 'addWishlist', payload: '' });
+        }
+    }, [wishlistProductRes])
 
     useEffect(() => {
         setProductList([]);
@@ -64,7 +79,14 @@ const ProductList = React.memo(({ search }) => {
         }
     }, [dispatch]);
 
-    const handleWishListApi = (id) => {
+    const handleWishListApi = async (id) => {
+        const token = await AsyncStorage.getItem('Token');
+        const parseToken = JSON.parse(token);
+        let params = {
+            product_id: id
+        };
+        console.log(id);
+        dispatch(AddWishlistAction(params, parseToken))
     }
 
 
@@ -97,7 +119,7 @@ const ProductList = React.memo(({ search }) => {
             <ProductCard
                 key={index}
                 item={item}
-                onPressWishlist={() => handleWishListApi(item.id)}
+                onPressWishlist={() => handleWishListApi(item._id)}
                 onPressProductDetails={() => navigation.navigate('ProductDetails', { item })}
             />
         );

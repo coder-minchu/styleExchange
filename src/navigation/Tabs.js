@@ -14,6 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
 import { LoginAction } from '../Redux/Action/LoginAction';
 import { OtpVerifyAction } from '../Redux/Action/OtpVerifyAction';
+import StyleExchange from '../Drawer/StyleExchange';
 
 const Tab = createBottomTabNavigator();
 
@@ -238,175 +239,175 @@ const Tabs = ({ navigation }) => {
     // }
   };
   return (
-      <View style={{ flex: 1 }}>
-        <Tab.Navigator
-          tabBar={props => <MyTabBar {...props} />}
-          screenOptions={{
-            tabBarStyle: { height: 80 },
-          }}>
-          <Tab.Screen
-            name="Home"
-            component={Home}
-            options={{
-              header: () => null,
-              title: '',
-              iconName: 'home',
-            }}
-          />
-          <Tab.Screen
-            name="Categories"
-            component={Categories}
-            options={{
-              header: () => null,
-              title: 'Categories',
-              iconName: 'heart-outline',
-              bottomSheetRef: bottomSheetRef,
-              bottomSheetVisible: setBottomSheetVisible
-            }}
-          />
+    <View style={{ flex: 1 }}>
+      <Tab.Navigator
+        tabBar={props => <MyTabBar {...props} />}
+        screenOptions={{
+          tabBarStyle: { height: 80 },
+        }}>
+        <Tab.Screen
+          name="Home"
+          component={StyleExchange}
+          options={{
+            header: () => null,
+            title: '',
+            iconName: 'home',
+          }}
+        />
+        <Tab.Screen
+          name="Categories"
+          component={Categories}
+          options={{
+            header: () => null,
+            title: 'Categories',
+            iconName: 'heart-outline',
+            bottomSheetRef: bottomSheetRef,
+            bottomSheetVisible: setBottomSheetVisible
+          }}
+        />
 
-          <Tab.Screen
-            name="Sell"
-            component={Sell}
-            options={{
-              header: () => null,
-              title: '',
-              iconName: 'heart-outline',
-              bottomSheetRef: bottomSheetRef,
-              bottomSheetVisible: setBottomSheetVisible
-            }}
-          />
+        <Tab.Screen
+          name="Sell"
+          component={Sell}
+          options={{
+            header: () => null,
+            title: '',
+            iconName: 'heart-outline',
+            bottomSheetRef: bottomSheetRef,
+            bottomSheetVisible: setBottomSheetVisible
+          }}
+        />
 
-          <Tab.Screen
-            name="Chats"
-            component={Chats}
-            options={{
-              header: () => null,
-              title: '',
-              iconName: 'chatbubble-outline',
-              bottomSheetRef: bottomSheetRef,
-              bottomSheetVisible: setBottomSheetVisible
-            }}
-          />
+        <Tab.Screen
+          name="Chats"
+          component={Chats}
+          options={{
+            header: () => null,
+            title: '',
+            iconName: 'chatbubble-outline',
+            bottomSheetRef: bottomSheetRef,
+            bottomSheetVisible: setBottomSheetVisible
+          }}
+        />
 
-          <Tab.Screen
-            name="Account"
-            component={Account}
-            options={{
-              header: () => null,
-              title: '',
-              iconName: 'person-outline',
-              bottomSheetRef: bottomSheetRef,
-              bottomSheetVisible: setBottomSheetVisible
-            }}
-          />
-        </Tab.Navigator>
-        {bottomSheetVisible && (
-          <BottomSheet ref={bottomSheetRef} index={1} snapPoints={loginSnapPoints} onClose={closeLoginBottomSheet} backdropComponent={(props) => <BottomSheetBackdrop {...props} />}>
-            <LinearGradient colors={AppColor.LinearGradient1} style={styles.container}>
-              <TouchableOpacity
-                onPress={closeLoginBottomSheet}
-                style={{
-                  position: 'absolute',
-                  top: Platform.OS === 'ios' ? 30 : 20,
-                  right: Platform.OS === 'ios' ? 20 : 15,
-                }}>
-                <Icon
-                  name="close-outline"
-                  size={30}
-                  color="white"
-                />
-              </TouchableOpacity>
-              <Text style={[customStyles.boldText, { color: AppColor.white, fontSize: responsiveFontSize(2.5), padding: 15 }]}>
-                India's #1 Online Thrift Store
-              </Text>
-              <CustomPhoneInput value={phoneNumber} onChangeText={setPhoneNumber} />
-              <View style={styles.errorView}>
-                {errorText && <Text style={[customStyles.simpleText, { fontSize: responsiveFontSize(1), paddingLeft: 2, color: AppColor.crimson }]}>{errorText}</Text>}
-              </View>
-              <CustomLoginButton phoneNumber={phoneNumber} onPress={handleLogin} loading={loading} />
-            </LinearGradient>
+        <Tab.Screen
+          name="Account"
+          component={Account}
+          options={{
+            header: () => null,
+            title: '',
+            iconName: 'person-outline',
+            bottomSheetRef: bottomSheetRef,
+            bottomSheetVisible: setBottomSheetVisible
+          }}
+        />
+      </Tab.Navigator>
+      {bottomSheetVisible && (
+        <BottomSheet ref={bottomSheetRef} index={1} snapPoints={loginSnapPoints} onClose={closeLoginBottomSheet} backdropComponent={(props) => <BottomSheetBackdrop {...props} />}>
+          <LinearGradient colors={AppColor.LinearGradient1} style={styles.container}>
+            <TouchableOpacity
+              onPress={closeLoginBottomSheet}
+              style={{
+                position: 'absolute',
+                top: Platform.OS === 'ios' ? 30 : 20,
+                right: Platform.OS === 'ios' ? 20 : 15,
+              }}>
+              <Icon
+                name="close-outline"
+                size={30}
+                color="white"
+              />
+            </TouchableOpacity>
+            <Text style={[customStyles.boldText, { color: AppColor.white, fontSize: responsiveFontSize(2.5), padding: 15 }]}>
+              India's #1 Online Thrift Store
+            </Text>
+            <CustomPhoneInput value={phoneNumber} onChangeText={setPhoneNumber} />
+            <View style={styles.errorView}>
+              {errorText && <Text style={[customStyles.simpleText, { fontSize: responsiveFontSize(1), paddingLeft: 2, color: AppColor.crimson }]}>{errorText}</Text>}
+            </View>
+            <CustomLoginButton phoneNumber={phoneNumber} onPress={handleLogin} loading={loading} />
+          </LinearGradient>
 
-          </BottomSheet>
-        )}
-        {otpBottomSheetVisible && (
-          <BottomSheet ref={otpBottomSheetRef} index={1} snapPoints={otpSnapPoints} onClose={closeOtpBottomSheet}backdropComponent={(props) => <BottomSheetBackdrop {...props} />}>
-            <LinearGradient colors={AppColor.LinearGradient1} style={styles.container}>
-              <TouchableOpacity
-                onPress={() => {
-                  setErrorText('')
-                  closeOtpBottomSheet();
-                  setBottomSheetVisible(true);
-                  bottomSheetRef.current?.expand();
+        </BottomSheet>
+      )}
+      {otpBottomSheetVisible && (
+        <BottomSheet ref={otpBottomSheetRef} index={1} snapPoints={otpSnapPoints} onClose={closeOtpBottomSheet} backdropComponent={(props) => <BottomSheetBackdrop {...props} />}>
+          <LinearGradient colors={AppColor.LinearGradient1} style={styles.container}>
+            <TouchableOpacity
+              onPress={() => {
+                setErrorText('')
+                closeOtpBottomSheet();
+                setBottomSheetVisible(true);
+                bottomSheetRef.current?.expand();
+              }}
+              style={{
+                position: 'absolute',
+                top: 20,
+                left: 20,
+              }}
+            >
+              <Text style={{ color: 'white', fontSize: 16 }}>Back</Text>
+            </TouchableOpacity>
+
+            <Text style={[customStyles.boldText, { color: AppColor.white, fontSize: responsiveFontSize(2.5), padding: 20 }]}>Enter OTP</Text>
+
+            <View style={styles.inputContainer1}>
+              <TextInput
+                placeholder="_"
+                style={[styles.otpinput, { borderColor: errorText ? 'red' : 'white' }]}
+                maxLength={1}
+                keyboardType="numeric"
+                value={otp1}
+                onChangeText={(text) => {
+                  setOtp1(text);
+                  handleOtpChange(text, otp2Ref);
                 }}
-                style={{
-                  position: 'absolute',
-                  top: 20,
-                  left: 20,
+                ref={otp1Ref}
+              />
+              <TextInput
+                placeholder="_"
+                style={[styles.otpinput, { borderColor: errorText ? 'red' : 'white' }]}
+                maxLength={1}
+                keyboardType="numeric"
+                value={otp2}
+                onChangeText={(text) => {
+                  setOtp2(text);
+                  handleOtpChange(text, otp3Ref);
                 }}
-              >
-                <Text style={{ color: 'white', fontSize: 16 }}>Back</Text>
-              </TouchableOpacity>
+                ref={otp2Ref}
+              />
+              <TextInput
+                placeholder="_"
+                style={[styles.otpinput, { borderColor: errorText ? 'red' : 'white' }]}
+                maxLength={1}
+                keyboardType="numeric"
+                value={otp3}
+                onChangeText={(text) => {
+                  setOtp3(text);
+                  handleOtpChange(text, otp4Ref);
+                }}
+                ref={otp3Ref}
+              />
+              <TextInput
+                placeholder="_"
+                style={[styles.otpinput, { borderColor: errorText ? 'red' : 'white' }]}
+                maxLength={1}
+                keyboardType="numeric"
+                value={otp4}
+                onChangeText={(text) => setOtp4(text)}
+                ref={otp4Ref}
+              />
+            </View>
 
-              <Text style={[customStyles.boldText, { color: AppColor.white, fontSize: responsiveFontSize(2.5), padding: 20 }]}>Enter OTP</Text>
-
-              <View style={styles.inputContainer1}>
-                <TextInput
-                  placeholder="_"
-                  style={[styles.otpinput, { borderColor: errorText ? 'red' : 'white' }]}
-                  maxLength={1}
-                  keyboardType="numeric"
-                  value={otp1}
-                  onChangeText={(text) => {
-                    setOtp1(text);
-                    handleOtpChange(text, otp2Ref);
-                  }}
-                  ref={otp1Ref}
-                />
-                <TextInput
-                  placeholder="_"
-                  style={[styles.otpinput, { borderColor: errorText ? 'red' : 'white' }]}
-                  maxLength={1}
-                  keyboardType="numeric"
-                  value={otp2}
-                  onChangeText={(text) => {
-                    setOtp2(text);
-                    handleOtpChange(text, otp3Ref);
-                  }}
-                  ref={otp2Ref}
-                />
-                <TextInput
-                  placeholder="_"
-                  style={[styles.otpinput, { borderColor: errorText ? 'red' : 'white' }]}
-                  maxLength={1}
-                  keyboardType="numeric"
-                  value={otp3}
-                  onChangeText={(text) => {
-                    setOtp3(text);
-                    handleOtpChange(text, otp4Ref);
-                  }}
-                  ref={otp3Ref}
-                />
-                <TextInput
-                  placeholder="_"
-                  style={[styles.otpinput, { borderColor: errorText ? 'red' : 'white' }]}
-                  maxLength={1}
-                  keyboardType="numeric"
-                  value={otp4}
-                  onChangeText={(text) => setOtp4(text)}
-                  ref={otp4Ref}
-                />
-              </View>
-
-              <TouchableOpacity disabled={otp1 && otp2 && otp3 && otp4 ? false : true} onPress={handleOtpContinue} style={styles.contineuButton} >
-                {loading ? <ActivityIndicator size='small' color={AppColor.white} /> :
-                  <Text style={[customStyles.boldText, { color: AppColor.white, fontSize: responsiveFontSize(2) }]}>Continue</Text>
-                }
-              </TouchableOpacity>
-            </LinearGradient>
-          </BottomSheet>
-        )}
-      </View>
+            <TouchableOpacity disabled={otp1 && otp2 && otp3 && otp4 ? false : true} onPress={handleOtpContinue} style={styles.contineuButton} >
+              {loading ? <ActivityIndicator size='small' color={AppColor.white} /> :
+                <Text style={[customStyles.boldText, { color: AppColor.white, fontSize: responsiveFontSize(2) }]}>Continue</Text>
+              }
+            </TouchableOpacity>
+          </LinearGradient>
+        </BottomSheet>
+      )}
+    </View>
   );
 };
 

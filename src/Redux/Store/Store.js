@@ -7,6 +7,8 @@ import CategoriesReducer from '../Reducer/CategoriesReducer';
 import ProductListReducer from '../Reducer/GetAllProductListReducer';
 import SearchSuggetionsReducer from '../Reducer/SearchSuggetionsReducer';
 import BrandsReducer from '../Reducer/GetBrandsReducer';
+import GetUserReducer from '../Reducer/GetUserReducer';
+import WishlistReducer from '../Reducer/WishlistReducer';
 
 const rootReducer = combineReducers({
   Reducer: Reducer,
@@ -15,7 +17,9 @@ const rootReducer = combineReducers({
   CategoriesReducer: CategoriesReducer,
   ProductListReducer:ProductListReducer,
   SearchSuggetionsReducer:SearchSuggetionsReducer,
-  BrandsReducer:BrandsReducer
+  BrandsReducer:BrandsReducer,
+  GetUserReducer:GetUserReducer,
+  WishlistReducer:WishlistReducer
 });
 const store = createStore(rootReducer, applyMiddleware(thunk));
 export default store;

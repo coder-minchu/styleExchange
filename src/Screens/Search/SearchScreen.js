@@ -18,7 +18,7 @@ const SearchScreen = ({ navigation, ...props }) => {
     const [isFocused, setIsFocused] = useState(false);
 
     const suggetionsRes = useSelector((state) => state.SearchSuggetionsReducer.SEARCHSUGGETIONS);
-    // console.log("🚀 ~ file: SearchScreen.js:19 ~ SearchScreen ~ suggetionsRes:", suggetionsRes)
+    console.log("🚀 ~ file: SearchScreen.js:19 ~ SearchScreen ~ suggetionsRes:", suggetionsRes)
 
 
     useEffect(() => {
@@ -76,6 +76,7 @@ const SearchScreen = ({ navigation, ...props }) => {
         searchRef.current.focus();
         dispatch(SearchSuggetionsAction({ search: suggestion }));
     };
+    const isBrand = (item) => suggetionsRes.brand.includes(item);
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
@@ -108,9 +109,9 @@ const SearchScreen = ({ navigation, ...props }) => {
                     />
                 </View>
             </View>
-            {suggetionsRes && suggetionsRes.length > 0 && (
+            {suggetionsRes && suggetionsRes.brand && suggetionsRes.brand.length > 0 && (
                 <FlatList
-                    data={suggetionsRes}
+                    data={[...suggetionsRes.brand, ...suggetionsRes.subCategories]}
                     keyExtractor={(item, index) => index.toString()}
                     renderItem={({ item }) => (
                         <View style={{
@@ -118,16 +119,21 @@ const SearchScreen = ({ navigation, ...props }) => {
                             borderColor: AppColor.borderColor,
                             paddingHorizontal: 5
                         }} >
-                            <TouchableOpacity onPress={() => handleSuggestionPressSubmit(item.title)} style={[styles.suggestionItem, { flexDirection: 'row' }]}>
+                            <TouchableOpacity onPress={() => handleSuggestionPressSubmit(item)} style={[styles.suggestionItem, { flexDirection: 'row' }]}>
                                 <Icon
                                     name="search"
                                     size={height / 50}
                                     color={"#ccc"}
                                     style={styles.searchIcon}
                                 />
-                                <Text style={styles.suggestionText}>{item.title}</Text>
+                                <Text style={[styles.suggestionText]}>
+                                    {item}
+                                </Text>
+                                {
+                                    isBrand(item) ? <Text style={styles.brandText}>  Brand</Text> : <Text style={styles.brandText}>  Sub-category</Text>
+                                }
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => handleSuggestionPress(item.title)} style={styles.suggestionItem}>
+                            <TouchableOpacity onPress={() => handleSuggestionPress(item)} style={styles.suggestionItem}>
                                 <Icons name="arrow-up-left" size={height / 50} color="#000" />
                             </TouchableOpacity>
                         </View>
@@ -196,6 +202,17 @@ const styles = StyleSheet.create({
         fontSize: responsiveFontSize(1.6),
         color: AppColor.grey,
         fontFamily: Fonts.PoppinsRegular,
+    },
+    suggestionText: {
+        fontSize: responsiveFontSize(1.5),
+        color: 'grey',
+    },
+    brandText: {
+        fontSize: responsiveFontSize(1),
+        color: 'blue',
+    },
+    subCategoryText: {
+        color: 'black',
     },
 });
 

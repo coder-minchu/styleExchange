@@ -8,6 +8,7 @@ import { AppColor } from '../../utils/AppColor';
 import { Fonts } from '../../utils/Fonts';
 import { responsiveFontSize, width } from '../../utils/Dimensions/Dimension';
 import { customStyles } from '../../utils/Styles';
+import Header from '../../Components/Header/Header';
 
 const Categories = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -73,10 +74,10 @@ const Categories = ({ navigation }) => {
   const renderSubCategoryCard = ({ item, index }) => {
     return (
       <View key={index} style={styles.subCategoriesContainer}>
-        <Text style={customStyles.heading}>{item.title}</Text>
+        <Text style={[customStyles.boldText, { fontSize: responsiveFontSize(2.2) }]}>{item.title}</Text>
         <View style={styles.subCategoryContainer}>
           {item.children.map((val, inx, arr) => (
-            <TouchableOpacity onPress={() => navigation.navigate('ProductListing')} key={inx} style={[styles.subCategory, arr.length > 4 && { height: '50%' }]}>
+            <TouchableOpacity onPress={() => navigation.navigate('ProductListing', { search: '' },)} key={inx} style={[styles.subCategory]}>
               <Image
                 source={{ uri: 'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/005d8a86-0fb0-422a-9d1e-08a4cb885afb1701602275724-W--SAREES.jpg' }}
                 style={styles.subCategoryImage}
@@ -102,14 +103,19 @@ const Categories = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.buttonContainer}>{renderCategoryButton()}</View>
-      <View style={{ flex: 0.9 }}>
-        <FlatList
-          data={categoriesData}
-          keyExtractor={(item) => item.id}
-          renderItem={renderCategoryItem}
-        />
+      <Header />
+      <View style={{ flex: 1, backgroundColor: 'white' }}>
+
+        <View style={styles.buttonContainer}>{renderCategoryButton()}</View>
+        <View style={{ flex: 1 }}>
+          <FlatList
+            data={categoriesData}
+            keyExtractor={(item) => item.id}
+            renderItem={renderCategoryItem}
+          />
+        </View>
       </View>
+
     </SafeAreaView>
   );
 };
@@ -117,7 +123,7 @@ const Categories = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: AppColor.white,
+    backgroundColor: AppColor.blueViolet,
   },
   buttonContainer: {
     justifyContent: 'space-between',
@@ -150,7 +156,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   subCategoriesContainer: {
-    margin: 5,
+    margin: 10,
   },
   subCategoryContainer: {
     flexDirection: 'row',
@@ -160,9 +166,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: AppColor.smokeWhite,
     margin: 5,
-    height: '100%',
     width: '22%',
-    // width: width/5,
   },
   subCategoryImage: {
     width: 80,

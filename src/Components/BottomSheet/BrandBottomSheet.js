@@ -70,7 +70,7 @@ const BrandBottomSheet = ({ handleApply }) => {
                     />
                 </View>
             </View>
-            <ScrollView keyboardShouldPersistTaps="handled" style={{ flex: 1, paddingLeft: 10 }}>
+            <ScrollView keyboardShouldPersistTaps="always" style={{ flex: 1, paddingLeft: 10 }}>
 
                 {!searchQuery && selectedBrands.length > 0 && (
                     <View style={[customStyles.headingView, { borderBottomWidth: 0 }]}>

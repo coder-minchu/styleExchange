@@ -1,170 +1,134 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  Button,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
-import React, { useCallback, useEffect } from 'react';
-import OlxNavbar from '../../Components/Navbar/OlxNavbar';
+import React, { useState } from 'react';
+import { SafeAreaView, StyleSheet, Image, View, Text, ImageBackground, TouchableOpacity } from 'react-native';
+import Header from '../../Components/Header/Header';
 import { AppColor } from '../../utils/AppColor';
-import Icon from 'react-native-vector-icons/Ionicons';
-import Option from '../../Components/Account/Option';
-import { width } from '../../utils/Dimensions/Dimension';
-import BlackButton from '../../Components/Button/BlackButton';
-import { Fonts } from '../../utils/Fonts';
-import { useFocusEffect } from '@react-navigation/native';
+import { height, width } from '../../utils/Dimensions/Dimension';
+import Icon from 'react-native-vector-icons/EvilIcons';
+import ImagePicker from 'react-native-image-crop-picker';
+import { customStyles } from '../../utils/Styles';
 
-const Account = ({state, descriptors, navigation }) => {
-console.log("🚀 ~ file: Account.js:21 ~ Account ~ state:", state)
-console.log("🚀 ~ file: Account.js:21 ~ Account ~ descriptors:", descriptors)
+const Account = ({ navigation }) => {
 
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     let login = true;
-  //     if (login) {
-  //       console.log('bottom sheet ');
-  //     } else {
-  //       console.log('bottom sheet not open  ');
-
-  //     }
-  //   }, [])
-  // )
-  // React.useEffect(() => {
-  //   const unsubscribe = navigation.addListener('tabLongPress', (e) => {
-  //     console.log('longpress');
-  //   });
-
-  //   return () => unsubscribe.remove();
-  // }, [navigation]);
-
-  // React.useEffect(() => {
-  //   const unsubscribe = navigation.addListener('tabPress', (e) => {
-  //     // Prevent default behavior
-  //     // e.preventDefault();
-  //     console.log('tap press');
-
-  //   });
-
-  //   return () => unsubscribe.remove();
-  // }, [navigation]);
-
+  const [ImagePicked, setImagePicked] = useState('https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250')
+  const imagePickerFnc = () => {
+    ImagePicker.openPicker({
+      width: 300,
+      height: 400,
+      cropping: true
+    }).then(image => {
+      console.log(image);
+      setImagePicked(image.path)
+    });
+  }
   return (
-    <View>
-      {/* <OlxNavbar />
-      <ScrollView>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'flex-start',
-            alignItems: 'center',
-            marginTop: 40,
-            paddingLeft: 30,
-          }}>
-          <View style={styles.imageView}>
-            <Image
-              style={styles.Image}
-              source={require('../../../assets/Images/headerLeft_img.png')}
-            />
+    <SafeAreaView style={styles.container}>
+      <Header title={'MyProfile'} />
+      <View style={styles.mainContainer}>
+        <View style={styles.firstContainer}>
+          <View style={styles.profileView}>
+            <ImageBackground
+              resizeMode="cover"
+              source={{
+                uri: ImagePicked,
+              }}
+              style={styles.profileImage}
+            >
+            </ImageBackground>
+            {/* <TouchableOpacity onPress={imagePickerFnc} style={styles.cameraView}>
+              <Icon name="camera" size={height / 40} color={AppColor.black} />
+            </TouchableOpacity> */}
+
           </View>
-          <Text
-            style={{
-              fontSize: 25,
-              paddingLeft: 20,
-              fontWeight: 'bold',
-              color: AppColor.black,
-            }}>
-            OLX User
-          </Text>
         </View>
-        <TouchableOpacity>
+        <View style={styles.secondContainer}>
+          <TouchableOpacity onPress={() => navigation.navigate('EditProfile')} style={styles.buttonView}>
+            <Text style={customStyles.boldText}>Edit Profile</Text>
+            <Icon name="chevron-right" size={height / 40} color={AppColor.black} />
+          </TouchableOpacity>
           <View style={styles.buttonView}>
-            <BlackButton title="View and Edit Profile" />
+            <Text style={customStyles.boldText}>Edit Profile</Text>
+            <Icon name="chevron-right" size={height / 40} color={AppColor.black} />
           </View>
-        </TouchableOpacity>
-        <View style={{ padding: 15, marginTop: 20, gap: 10 }}>
-          <Text style={{ fontSize: 18, color: AppColor.black }}>
-            5 steps left
-          </Text>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-evenly',
-              gap: 5,
-            }}>
-            <View style={styles.box}></View>
-            <View style={styles.box}></View>
-            <View style={styles.box}></View>
-            <View style={styles.box}></View>
-            <View style={styles.box}></View>
-            <View style={styles.box}></View>
+          <View style={styles.buttonView}>
+            <Text style={customStyles.boldText}>Edit Profile</Text>
+            <Icon name="chevron-right" size={height / 40} color={AppColor.black} />
           </View>
-          <Text>
-            We are built on trust.Help one another to get to know each other
-            better.
-          </Text>
-          <Option
-            heading="Buy Pakages & My Orders"
-            title="Pakages,Orders,billing and invoices"
-            icon="settings-outline"
-            iconAerrow="chevron-forward-outline"
-          />
-          <Option
-            heading="Settings"
-            title="Privacy and Logout"
-            icon="settings-outline"
-            iconAerrow="chevron-forward-outline"
-          />
-          <Option
-            heading="Help & Support"
-            title="Help center and legal terms"
-            icon="settings-outline"
-            iconAerrow="chevron-forward-outline"
-          />
-          <Option
-            heading="Select Language / "
-            title="English"
-            icon="settings-outline"
-            iconAerrow="chevron-forward-outline"
-          />
-          <Option
-            heading="Buy Pakages & My Orders"
-            title="Pakages,Orders,billing and invoices"
-            icon="settings-outline"
-            iconAerrow="chevron-forward-outline"
-          />
+          <View style={styles.buttonView}>
+            <Text style={customStyles.boldText}>Edit Profile</Text>
+            <Icon name="chevron-right" size={height / 40} color={AppColor.black} />
+          </View>
+          <View style={styles.buttonView}>
+            <Text style={customStyles.boldText}>Edit Profile</Text>
+            <Icon name="chevron-right" size={height / 40} color={AppColor.black} />
+          </View>
+          <View style={styles.buttonView}>
+            <Text style={customStyles.boldText}>Log out</Text>
+            <Icon name="chevron-right" size={height / 40} color={AppColor.black} />
+          </View>
         </View>
-      </ScrollView> */}
-    </View>
+      </View>
+    </SafeAreaView>
   );
 };
 
 export default Account;
 
 const styles = StyleSheet.create({
-  imageView: {
-    width: width / 4,
-    height: width / 4,
-    backgroundColor: 'skyblue',
-    borderRadius: 50,
+  container: {
+    flex: 1,
+    backgroundColor: AppColor.blueViolet,
   },
-  Image: {
-    resizeMode: 'cover',
+  mainContainer: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+  firstContainer: {
+    flex: 0.4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: 5,
+  },
+  secondContainer: {
+    flex: 1,
+    // backgroundColor: 'blue',
+    // justifyContent: 'center',
+    alignItems: 'center',
+
+  },
+  profileView: {
+    borderRadius: (width * 0.3) / 2,
+    width: width * 0.3,
+    height: width * 0.3,
+    backgroundColor: 'grey',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  profileImage: {
     width: '100%',
     height: '100%',
+    overflow: 'hidden',
+    borderRadius: (width * 0.3) / 2
+  },
+  cameraView: {
+    width: width * 0.07,
+    height: width * 0.07,
+    borderRadius: (width * 0.07) / 2,
+    backgroundColor: AppColor.smokeWhite,
+    position: 'absolute',
+    bottom: 20,
+    right: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   buttonView: {
-    marginLeft: 20,
-    marginRight: 20,
+    width: width - 30,
+    backgroundColor: AppColor.smokeWhite,
     alignItems: 'center',
-    marginTop: 20,
-    padding: 10,
+    justifyContent: 'space-between',
+    padding: 16,
+    flexDirection: 'row',
+    margin: 5,
+    alignSelf: 'center'
   },
-  box: {
-    width: width / 7,
-    height: width / 35,
-    backgroundColor: AppColor.grey,
-  },
+
 });
