@@ -9,17 +9,19 @@ import SearchSuggetionsReducer from '../Reducer/SearchSuggetionsReducer';
 import BrandsReducer from '../Reducer/GetBrandsReducer';
 import GetUserReducer from '../Reducer/GetUserReducer';
 import WishlistReducer from '../Reducer/WishlistReducer';
+import SellReducer from '../Reducer/SellReducer';
 
 const rootReducer = combineReducers({
   Reducer: Reducer,
   LoginReducer: LoginReducer,
   OtpVerifyReducer: OtpVerifyReducer,
   CategoriesReducer: CategoriesReducer,
-  ProductListReducer:ProductListReducer,
-  SearchSuggetionsReducer:SearchSuggetionsReducer,
-  BrandsReducer:BrandsReducer,
-  GetUserReducer:GetUserReducer,
-  WishlistReducer:WishlistReducer
+  ProductListReducer: ProductListReducer,
+  SearchSuggetionsReducer: SearchSuggetionsReducer,
+  BrandsReducer: BrandsReducer,
+  GetUserReducer: GetUserReducer,
+  WishlistReducer: WishlistReducer,
+  SellReducer: SellReducer
 });
 const store = createStore(rootReducer, applyMiddleware(thunk));
 export default store;

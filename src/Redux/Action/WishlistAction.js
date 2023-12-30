@@ -6,7 +6,7 @@ export const AddWishlistAction = (params, token) => {
         try {
             const response = await axios.post(`${BASE_URL}wishlist/add`, params, {
                 headers: {
-                    'Authorization': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZU51bWJlciI6OTE5NjkxNTExNDk3LCJpYXQiOjE3MDMwNTUwOTIsImV4cCI6MTcwMzA3MzA5Mn0.uSI-xeWpFEkxjxZNRTYDFwfdqIIfTqNdZHpi_ADwnHQ",
+                    'Authorization': token,
                     'Content-Type': 'application/json',
                 }
             });
@@ -26,7 +26,7 @@ export const GetWishlistAction = (token) => {
         try {
             const response = await axios.get(`${BASE_URL}wishlist`, {
                 headers: {
-                    'Authorization': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZU51bWJlciI6OTE5NjkxNTExNDk3LCJpYXQiOjE3MDMwNTUwOTIsImV4cCI6MTcwMzA3MzA5Mn0.uSI-xeWpFEkxjxZNRTYDFwfdqIIfTqNdZHpi_ADwnHQ",
+                    'Authorization': token,
                     'Content-Type': 'application/json',
                 },
             });
