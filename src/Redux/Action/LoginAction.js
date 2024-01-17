@@ -13,6 +13,7 @@ export const LoginAction = params => {
         method: 'POST', // Corrected the method name
         headers: {
           'Content-Type': 'application/json',
+          "ngrok-skip-browser-warning": 'true',
         },
         body: raw,
       });

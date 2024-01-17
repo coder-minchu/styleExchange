@@ -2,6 +2,7 @@ export const AppColor = {
   appBackground: '#F0F0F0',
   black: '#000',
   white: '#fff',
+  offwhite:'#f8f8f8',
   borderColor: '#D0D4CA',
   titleColor: '#45474B',
   grey: 'grey',

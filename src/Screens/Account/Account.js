@@ -45,10 +45,10 @@ const Account = ({ navigation }) => {
             <Text style={customStyles.boldText}>Edit Profile</Text>
             <Icon name="chevron-right" size={height / 40} color={AppColor.black} />
           </TouchableOpacity>
-          <View style={styles.buttonView}>
-            <Text style={customStyles.boldText}>Edit Profile</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('UploadedProducts')} style={styles.buttonView}>
+            <Text style={customStyles.boldText}>Uploaded Products</Text>
             <Icon name="chevron-right" size={height / 40} color={AppColor.black} />
-          </View>
+          </TouchableOpacity>
           <View style={styles.buttonView}>
             <Text style={customStyles.boldText}>Edit Profile</Text>
             <Icon name="chevron-right" size={height / 40} color={AppColor.black} />

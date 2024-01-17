@@ -5,7 +5,7 @@ import DefaultScreen from './DefaultScreen'
 const BuyingComponent = () => {
   return (
     <View>
-      <DefaultScreen/>
+      {/* <DefaultScreen/> */}
     </View>
   )
 }

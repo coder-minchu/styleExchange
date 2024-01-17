@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BASE_URL } from '../../utils/BaseUrl';
 import axios from 'axios';
 
-export const SellAction = params => {
+export const SellAction = (params, token) => {
     // console.log('params', params);
     var formdata = new FormData();
     formdata.append('parentCategories_Id', params.parentCategories_Id);
@@ -34,7 +34,8 @@ export const SellAction = params => {
             const response = await fetch(`${BASE_URL}products/add`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZU51bWJlciI6OTE5NjkxNTExNDk3LCJpYXQiOjE3MDM5MTY1OTYsImV4cCI6MTcwMzkzNDU5Nn0.ipuCswpiH_9edr6u3k8tK4O0jAIvG8rwnPjWZmWERK0" //params.token
+                    'Authorization': token,
+                    "ngrok-skip-browser-warning": 'true',
                 },
                 body: formdata,
             });

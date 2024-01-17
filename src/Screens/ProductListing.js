@@ -11,14 +11,13 @@ import { Fonts } from '../utils/Fonts';
 import FIlterList from '../Components/FilterList/FIlterList';
 import { customStyles } from '../utils/Styles';
 import SearchInput from '../Components/SearchInput/SearchInput';
-import { ProductListAction } from '../Redux/Action/GetAllProductListAction';
 import { Searchbar } from 'react-native-paper';
 import BrandBottomSheet from '../Components/BottomSheet/BrandBottomSheet';
 import SortedBottomSheet from '../Components/BottomSheet/SortedBottomSheet';
 import FilteredBottomSheet from '../Components/BottomSheet/FilteredBottomSheet';
 import ProductList from '../Components/ProductCard.js/ProductList';
 
-const filters = [
+const filtersData = [
   {
     filterName: 'Availability',
     isVisible: true,
@@ -29,6 +28,21 @@ const filters = [
       },
       {
         sub_filterName: 'Sold',
+        isSubSelected: false,
+      },
+    ],
+    isSelected: false,
+  },
+  {
+    filterName: 'Sort',
+    isVisible: false,
+    sub_filters: [
+      {
+        sub_filterName: 'High to Low',
+        isSubSelected: false,
+      },
+      {
+        sub_filterName: 'Low to High ',
         isSubSelected: false,
       },
     ],
@@ -162,6 +176,46 @@ const filters = [
     isSelected: false,
   },
   {
+    filterName: 'Color',
+    isVisible: false,
+    sub_filters: [
+      {
+        sub_filterName: 'Red',
+        isSubSelected: false,
+      },
+      {
+        sub_filterName: 'Blue',
+        isSubSelected: false,
+      },
+      {
+        sub_filterName: 'Green',
+        isSubSelected: false,
+      },
+      // Add more colors as needed
+    ],
+    isSelected: false,
+  },
+  {
+    filterName: 'Discount',
+    isVisible: false,
+    sub_filters: [
+      {
+        sub_filterName: '10% Off',
+        isSubSelected: false,
+      },
+      {
+        sub_filterName: '20% Off',
+        isSubSelected: false,
+      },
+      {
+        sub_filterName: '30% Off',
+        isSubSelected: false,
+      },
+      // Add more discount options as needed
+    ],
+    isSelected: false,
+  },
+  {
     filterName: 'Status',
     isVisible: false,
     sub_filters: [
@@ -201,25 +255,35 @@ const ProductListing = ({ navigation }) => {
   const snapPoints = useMemo(() => ['15%', '75%'], []);
   const snapSortPoints = useMemo(() => ['15%', '25%'], []);
 
-  const [filterText, setFilterText] = useState('');
+  const [filters, setFilters] = useState(filtersData);
+  const [visibleSelectedFilters, setVisibleSelectedFilters] = useState([]);
+  const [selectedFiltersData, setSelectedFiltersData] = useState([]);
 
   const handleSortOption = useCallback(() => {
   }, []);
 
   const openBottomSheet = useCallback((label) => {
-    setFilterText(label);
     setBottomSheetVisible(true);
+    const updatedFilters = filters.map((filter) => ({
+      ...filter,
+      isVisible: filter.filterName === label || (filter.filterName === "Availability" && label === "Filter" && true),
+    }));
+    // console.log("🚀 ~ file: ProductListing.js:271 ~ updatedFilters ~ filters:", filters)
+    // console.log("🚀 ~ file: ProductListing.js:271 ~ updatedFilters ~ updatedFilters:", updatedFilters)
+    setFilters(updatedFilters);
     bottomSheetRef.current?.expand();
-  }, []);
 
-  const handleApply = useCallback((selectedBrandIds, allBrands) => {
-    console.log("🚀 ~ file: ProductListing.js:217 ~ handleApply ~ allBrands:", allBrands)
-    const selectedBrands = allBrands
-      .filter(brand => selectedBrandIds.includes(brand._id))
-      .map(brand => brand.brand);
+  }, [filters]);
 
-    console.log('Selected Brands:', selectedBrands);
-  }, []);
+
+  const setFiltersData = (data) => {
+    setVisibleSelectedFilters(data);
+  };
+  const selectedFiltersFnc = (data) => {
+    // console.log("🚀 ~ file: ProductListing.js:283 ~ selectedFiltersFnc ~ data:", data)
+    setBottomSheetVisible(false);
+    setSelectedFiltersData(data);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -232,13 +296,16 @@ const ProductListing = ({ navigation }) => {
           <Icon name="heart" size={height / 40} color={AppColor.black} />
         </TouchableOpacity>
       </View>
-      <FIlterList openBottomSheet={openBottomSheet} />
-      <ProductList search={search} />
+      <FIlterList openBottomSheet={openBottomSheet} visibleSelectedFilters={visibleSelectedFilters} />
+      <ProductList search={search} selectedFiltersData={selectedFiltersData} />
       {bottomSheetVisible && (
-        <BottomSheet ref={bottomSheetRef} snapPoints={filterText === 'Brand' ? snapPoints : filterText === 'Sort' ? snapSortPoints : snapPoints} index={1} backdropComponent={(props) => <BottomSheetBackdrop  {...props} />}>
-          {filterText === 'Filter' && <FilteredBottomSheet filters={filters} />}
-          {filterText === 'Brand' && <BrandBottomSheet handleApply={handleApply} />}
-          {filterText === 'Sort' && <SortedBottomSheet handleSortOption={handleSortOption} />}
+        // <BottomSheet ref={bottomSheetRef} snapPoints={filterText === 'Brand' ? snapPoints : filterText === 'Sort' ? snapSortPoints : snapPoints} index={1} backdropComponent={(props) => <BottomSheetBackdrop  {...props} />}>
+        //   {filterText === 'Filter' && <FilteredBottomSheet filters={filters} />}
+        //   {filterText === 'Brand' && <BrandBottomSheet handleApply={handleApply} />}
+        //   {filterText === 'Sort' && <SortedBottomSheet handleSortOption={handleSortOption} />}
+        // </BottomSheet>
+        <BottomSheet ref={bottomSheetRef} snapPoints={snapPoints} index={1} backdropComponent={(props) => <BottomSheetBackdrop  {...props} />}>
+          <FilteredBottomSheet filters={filters} setFiltersData={setFiltersData} selectedFiltersFnc={selectedFiltersFnc} setFilters={setFilters} />
         </BottomSheet>
       )}
     </SafeAreaView>

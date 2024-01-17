@@ -15,6 +15,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { LoginAction } from '../Redux/Action/LoginAction';
 import { OtpVerifyAction } from '../Redux/Action/OtpVerifyAction';
 import StyleExchange from '../Drawer/StyleExchange';
+import CustomPhoneInput from '../Components/CustomPhoneInput';
+import CustomLoginButton from '../Components/CustomLoginButton';
+import OtpBottomSheet from '../Components/BottomSheet/OtpBottomSheet';
+import LoginBottomSheet from '../Components/BottomSheet/LoginBottomSheet';
 
 const Tab = createBottomTabNavigator();
 
@@ -101,25 +105,25 @@ const styles = StyleSheet.create({
   },
 });
 
-const CustomPhoneInput = ({ value, onChangeText }) => (
-  <View style={styles.inputContainer}>
-    <Text style={{ marginRight: 10, color: AppColor.black, fontSize: responsiveFontSize(1.2), fontFamily: Fonts.poppins.semiBold }}>+91</Text>
-    <TextInput
-      maxLength={10}
-      style={styles.input}
-      placeholder="Enter your mobile number"
-      keyboardType="numeric"
-      value={value}
-      onChangeText={onChangeText}
-    />
-  </View>
-);
+// const CustomPhoneInput = ({ value, onChangeText }) => (
+//   <View style={styles.inputContainer}>
+//     <Text style={{ marginRight: 10, color: AppColor.black, fontSize: responsiveFontSize(1.2), fontFamily: Fonts.poppins.semiBold }}>+91</Text>
+//     <TextInput
+//       maxLength={10}
+//       style={styles.input}
+//       placeholder="Enter your mobile number"
+//       keyboardType="numeric"
+//       value={value}
+//       onChangeText={onChangeText}
+//     />
+//   </View>
+// );
 
-const CustomLoginButton = ({ phoneNumber, onPress, loading }) => (
-  <TouchableOpacity disabled={!phoneNumber} style={styles.loginButton} onPress={onPress}>
-    {loading ? <ActivityIndicator size='small' color={AppColor.white} /> : <Text style={styles.loginButtonText}>Login</Text>}
-  </TouchableOpacity>
-);
+// const CustomLoginButton = ({ phoneNumber, onPress, loading }) => (
+//   <TouchableOpacity disabled={!phoneNumber} style={styles.loginButton} onPress={onPress}>
+//     {loading ? <ActivityIndicator size='small' color={AppColor.white} /> : <Text style={styles.loginButtonText}>Login</Text>}
+//   </TouchableOpacity>
+// );
 
 const Tabs = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -136,10 +140,6 @@ const Tabs = ({ navigation }) => {
 
   const bottomSheetRef = useRef(null);
   const otpBottomSheetRef = useRef(null);
-  const otp1Ref = useRef();
-  const otp2Ref = useRef();
-  const otp3Ref = useRef();
-  const otp4Ref = useRef();
 
   const loginSnapPoints = useMemo(() => ['25%', '50%'], []);
   const otpSnapPoints = useMemo(() => ['25%', '50%'], []);
@@ -302,109 +302,37 @@ const Tabs = ({ navigation }) => {
           }}
         />
       </Tab.Navigator>
+
       {bottomSheetVisible && (
         <BottomSheet ref={bottomSheetRef} index={1} snapPoints={loginSnapPoints} onClose={closeLoginBottomSheet} backdropComponent={(props) => <BottomSheetBackdrop {...props} />}>
-          <LinearGradient colors={AppColor.LinearGradient1} style={styles.container}>
-            <TouchableOpacity
-              onPress={closeLoginBottomSheet}
-              style={{
-                position: 'absolute',
-                top: Platform.OS === 'ios' ? 30 : 20,
-                right: Platform.OS === 'ios' ? 20 : 15,
-              }}>
-              <Icon
-                name="close-outline"
-                size={30}
-                color="white"
-              />
-            </TouchableOpacity>
-            <Text style={[customStyles.boldText, { color: AppColor.white, fontSize: responsiveFontSize(2.5), padding: 15 }]}>
-              India's #1 Online Thrift Store
-            </Text>
-            <CustomPhoneInput value={phoneNumber} onChangeText={setPhoneNumber} />
-            <View style={styles.errorView}>
-              {errorText && <Text style={[customStyles.simpleText, { fontSize: responsiveFontSize(1), paddingLeft: 2, color: AppColor.crimson }]}>{errorText}</Text>}
-            </View>
-            <CustomLoginButton phoneNumber={phoneNumber} onPress={handleLogin} loading={loading} />
-          </LinearGradient>
-
+          <LoginBottomSheet
+            phoneNumber={phoneNumber}
+            setPhoneNumber={setPhoneNumber}
+            errorText={errorText}
+            setErrorText={setErrorText}
+            handleLogin={handleLogin}
+            loading={loading}
+            closeBottomSheet={closeLoginBottomSheet}
+          />
         </BottomSheet>
       )}
+
       {otpBottomSheetVisible && (
         <BottomSheet ref={otpBottomSheetRef} index={1} snapPoints={otpSnapPoints} onClose={closeOtpBottomSheet} backdropComponent={(props) => <BottomSheetBackdrop {...props} />}>
-          <LinearGradient colors={AppColor.LinearGradient1} style={styles.container}>
-            <TouchableOpacity
-              onPress={() => {
-                setErrorText('')
-                closeOtpBottomSheet();
-                setBottomSheetVisible(true);
-                bottomSheetRef.current?.expand();
-              }}
-              style={{
-                position: 'absolute',
-                top: 20,
-                left: 20,
-              }}
-            >
-              <Text style={{ color: 'white', fontSize: 16 }}>Back</Text>
-            </TouchableOpacity>
-
-            <Text style={[customStyles.boldText, { color: AppColor.white, fontSize: responsiveFontSize(2.5), padding: 20 }]}>Enter OTP</Text>
-
-            <View style={styles.inputContainer1}>
-              <TextInput
-                placeholder="_"
-                style={[styles.otpinput, { borderColor: errorText ? 'red' : 'white' }]}
-                maxLength={1}
-                keyboardType="numeric"
-                value={otp1}
-                onChangeText={(text) => {
-                  setOtp1(text);
-                  handleOtpChange(text, otp2Ref);
-                }}
-                ref={otp1Ref}
-              />
-              <TextInput
-                placeholder="_"
-                style={[styles.otpinput, { borderColor: errorText ? 'red' : 'white' }]}
-                maxLength={1}
-                keyboardType="numeric"
-                value={otp2}
-                onChangeText={(text) => {
-                  setOtp2(text);
-                  handleOtpChange(text, otp3Ref);
-                }}
-                ref={otp2Ref}
-              />
-              <TextInput
-                placeholder="_"
-                style={[styles.otpinput, { borderColor: errorText ? 'red' : 'white' }]}
-                maxLength={1}
-                keyboardType="numeric"
-                value={otp3}
-                onChangeText={(text) => {
-                  setOtp3(text);
-                  handleOtpChange(text, otp4Ref);
-                }}
-                ref={otp3Ref}
-              />
-              <TextInput
-                placeholder="_"
-                style={[styles.otpinput, { borderColor: errorText ? 'red' : 'white' }]}
-                maxLength={1}
-                keyboardType="numeric"
-                value={otp4}
-                onChangeText={(text) => setOtp4(text)}
-                ref={otp4Ref}
-              />
-            </View>
-
-            <TouchableOpacity disabled={otp1 && otp2 && otp3 && otp4 ? false : true} onPress={handleOtpContinue} style={styles.contineuButton} >
-              {loading ? <ActivityIndicator size='small' color={AppColor.white} /> :
-                <Text style={[customStyles.boldText, { color: AppColor.white, fontSize: responsiveFontSize(2) }]}>Continue</Text>
-              }
-            </TouchableOpacity>
-          </LinearGradient>
+          <OtpBottomSheet
+            otp1={otp1}
+            otp2={otp2}
+            otp3={otp3}
+            otp4={otp4}
+            setOtp1={setOtp1}
+            setOtp2={setOtp2}
+            setOtp3={setOtp3}
+            setOtp4={setOtp4}
+            errorText={errorText}
+            handleOtpContinue={handleOtpContinue}
+            loading={loading}
+            closeBottomSheet={closeOtpBottomSheet}
+          />
         </BottomSheet>
       )}
     </View>

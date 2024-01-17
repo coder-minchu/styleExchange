@@ -14,7 +14,11 @@ import { Fonts } from '../utils/Fonts';
 import Icon from 'react-native-vector-icons/Ionicons'; // Import the search icon library
 import { AppColor } from '../utils/AppColor';
 import { height, responsiveFontSize, width } from '../utils/Dimensions/Dimension';
-import { FlatList, RefreshControl, TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import {
+    FlatList,
+    RefreshControl,
+    TouchableWithoutFeedback,
+} from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
 import Slider from '../Components/Slider';
 import { customStyles } from '../utils/Styles';
@@ -23,6 +27,7 @@ import { ProductListAction } from '../Redux/Action/GetAllProductListAction';
 import SortBottomSheet from '../Components/BottomSheet/SortBottomSheet';
 import FilterBottomSheet from '../Components/BottomSheet/FilterBottomSheet';
 import Header from '../Components/Header/Header';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const dummyData = [
     {
@@ -30,69 +35,85 @@ const dummyData = [
         category_description: "Women's Fashion",
         sub_categories: [
             {
-                name: "Kurta Sets",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/7824150f-e7e5-423d-a8a0-13a6532118401701602275748-W--KURTA-SETS.jpg",
+                name: 'Kurta Sets',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/7824150f-e7e5-423d-a8a0-13a6532118401701602275748-W--KURTA-SETS.jpg',
             },
             {
-                name: "Dresses",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/fe5c2d1e-716c-4cec-a6bf-934b5e6bcc191701602275798-W--DRESSES.jpg",
+                name: 'Dresses',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/fe5c2d1e-716c-4cec-a6bf-934b5e6bcc191701602275798-W--DRESSES.jpg',
             },
             {
-                name: "Sarees",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/005d8a86-0fb0-422a-9d1e-08a4cb885afb1701602275724-W--SAREES.jpg",
+                name: 'Sarees',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/005d8a86-0fb0-422a-9d1e-08a4cb885afb1701602275724-W--SAREES.jpg',
             },
             {
-                name: "Tops & Tees",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/09761455-ea73-4edc-bf32-e95ee52597061701602275706-W--TOPS---TEES.jpg",
+                name: 'Tops & Tees',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/09761455-ea73-4edc-bf32-e95ee52597061701602275706-W--TOPS---TEES.jpg',
             },
             {
-                name: "Kurta Sets",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/7824150f-e7e5-423d-a8a0-13a6532118401701602275748-W--KURTA-SETS.jpg",
+                name: 'Kurta Sets',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/7824150f-e7e5-423d-a8a0-13a6532118401701602275748-W--KURTA-SETS.jpg',
             },
             {
-                name: "Dresses",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/fe5c2d1e-716c-4cec-a6bf-934b5e6bcc191701602275798-W--DRESSES.jpg",
+                name: 'Dresses',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/fe5c2d1e-716c-4cec-a6bf-934b5e6bcc191701602275798-W--DRESSES.jpg',
             },
             {
-                name: "Sarees",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/005d8a86-0fb0-422a-9d1e-08a4cb885afb1701602275724-W--SAREES.jpg",
+                name: 'Sarees',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/005d8a86-0fb0-422a-9d1e-08a4cb885afb1701602275724-W--SAREES.jpg',
             },
             {
-                name: "Tops & Tees",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/09761455-ea73-4edc-bf32-e95ee52597061701602275706-W--TOPS---TEES.jpg",
+                name: 'Tops & Tees',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/09761455-ea73-4edc-bf32-e95ee52597061701602275706-W--TOPS---TEES.jpg',
             },
             {
-                name: "Kurta Sets",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/7824150f-e7e5-423d-a8a0-13a6532118401701602275748-W--KURTA-SETS.jpg",
+                name: 'Kurta Sets',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/7824150f-e7e5-423d-a8a0-13a6532118401701602275748-W--KURTA-SETS.jpg',
             },
             {
-                name: "Dresses",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/fe5c2d1e-716c-4cec-a6bf-934b5e6bcc191701602275798-W--DRESSES.jpg",
+                name: 'Dresses',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/fe5c2d1e-716c-4cec-a6bf-934b5e6bcc191701602275798-W--DRESSES.jpg',
             },
             {
-                name: "Sarees",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/005d8a86-0fb0-422a-9d1e-08a4cb885afb1701602275724-W--SAREES.jpg",
+                name: 'Sarees',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/005d8a86-0fb0-422a-9d1e-08a4cb885afb1701602275724-W--SAREES.jpg',
             },
             {
-                name: "Tops & Tees",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/09761455-ea73-4edc-bf32-e95ee52597061701602275706-W--TOPS---TEES.jpg",
+                name: 'Tops & Tees',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/09761455-ea73-4edc-bf32-e95ee52597061701602275706-W--TOPS---TEES.jpg',
             },
             {
-                name: "Kurta Sets",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/7824150f-e7e5-423d-a8a0-13a6532118401701602275748-W--KURTA-SETS.jpg",
+                name: 'Kurta Sets',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/7824150f-e7e5-423d-a8a0-13a6532118401701602275748-W--KURTA-SETS.jpg',
             },
             {
-                name: "Dresses",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/fe5c2d1e-716c-4cec-a6bf-934b5e6bcc191701602275798-W--DRESSES.jpg",
+                name: 'Dresses',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/fe5c2d1e-716c-4cec-a6bf-934b5e6bcc191701602275798-W--DRESSES.jpg',
             },
             {
-                name: "Sarees",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/005d8a86-0fb0-422a-9d1e-08a4cb885afb1701602275724-W--SAREES.jpg",
+                name: 'Sarees',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/005d8a86-0fb0-422a-9d1e-08a4cb885afb1701602275724-W--SAREES.jpg',
             },
             {
-                name: "Tops & Tees",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/09761455-ea73-4edc-bf32-e95ee52597061701602275706-W--TOPS---TEES.jpg",
-            }
+                name: 'Tops & Tees',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/09761455-ea73-4edc-bf32-e95ee52597061701602275706-W--TOPS---TEES.jpg',
+            },
         ],
         Saree: [
             {
@@ -136,68 +157,84 @@ const dummyData = [
         category_description: "Men's Fashion",
         sub_categories: [
             {
-                name: "Jeans",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/fe7d1c96-512a-4b28-972a-b797486bc7301701601965564-M--JEANS.jpg",
+                name: 'Jeans',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/fe7d1c96-512a-4b28-972a-b797486bc7301701601965564-M--JEANS.jpg',
             },
             {
-                name: "Sweatshirt",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/ef6f833c-37bf-40ff-9b23-956c211671ab1701601965514-M--SWEATSHIRT.jpg",
+                name: 'Sweatshirt',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/ef6f833c-37bf-40ff-9b23-956c211671ab1701601965514-M--SWEATSHIRT.jpg',
             },
             {
-                name: "Shirts",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/70acc32d-b72f-4727-88e3-e835c67ff5e01701601965541-M--SHIRTS.jpg",
+                name: 'Shirts',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/70acc32d-b72f-4727-88e3-e835c67ff5e01701601965541-M--SHIRTS.jpg',
             },
             {
-                name: "T-shirt",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/f415d418-10f2-4b96-8ea8-2b6c22a8781a1701601965496-M--TSHIRT.jpg",
+                name: 'T-shirt',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/f415d418-10f2-4b96-8ea8-2b6c22a8781a1701601965496-M--TSHIRT.jpg',
             },
             {
-                name: "Jeans",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/fe7d1c96-512a-4b28-972a-b797486bc7301701601965564-M--JEANS.jpg",
+                name: 'Jeans',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/fe7d1c96-512a-4b28-972a-b797486bc7301701601965564-M--JEANS.jpg',
             },
             {
-                name: "Sweatshirt",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/ef6f833c-37bf-40ff-9b23-956c211671ab1701601965514-M--SWEATSHIRT.jpg",
+                name: 'Sweatshirt',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/ef6f833c-37bf-40ff-9b23-956c211671ab1701601965514-M--SWEATSHIRT.jpg',
             },
             {
-                name: "Shirts",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/70acc32d-b72f-4727-88e3-e835c67ff5e01701601965541-M--SHIRTS.jpg",
+                name: 'Shirts',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/70acc32d-b72f-4727-88e3-e835c67ff5e01701601965541-M--SHIRTS.jpg',
             },
             {
-                name: "T-shirt",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/f415d418-10f2-4b96-8ea8-2b6c22a8781a1701601965496-M--TSHIRT.jpg",
+                name: 'T-shirt',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/f415d418-10f2-4b96-8ea8-2b6c22a8781a1701601965496-M--TSHIRT.jpg',
             },
             {
-                name: "Jeans",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/fe7d1c96-512a-4b28-972a-b797486bc7301701601965564-M--JEANS.jpg",
+                name: 'Jeans',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/fe7d1c96-512a-4b28-972a-b797486bc7301701601965564-M--JEANS.jpg',
             },
             {
-                name: "Sweatshirt",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/ef6f833c-37bf-40ff-9b23-956c211671ab1701601965514-M--SWEATSHIRT.jpg",
+                name: 'Sweatshirt',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/ef6f833c-37bf-40ff-9b23-956c211671ab1701601965514-M--SWEATSHIRT.jpg',
             },
             {
-                name: "Shirts",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/70acc32d-b72f-4727-88e3-e835c67ff5e01701601965541-M--SHIRTS.jpg",
+                name: 'Shirts',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/70acc32d-b72f-4727-88e3-e835c67ff5e01701601965541-M--SHIRTS.jpg',
             },
             {
-                name: "T-shirt",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/f415d418-10f2-4b96-8ea8-2b6c22a8781a1701601965496-M--TSHIRT.jpg",
+                name: 'T-shirt',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/f415d418-10f2-4b96-8ea8-2b6c22a8781a1701601965496-M--TSHIRT.jpg',
             },
             {
-                name: "Jeans",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/fe7d1c96-512a-4b28-972a-b797486bc7301701601965564-M--JEANS.jpg",
+                name: 'Jeans',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/fe7d1c96-512a-4b28-972a-b797486bc7301701601965564-M--JEANS.jpg',
             },
             {
-                name: "Sweatshirt",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/ef6f833c-37bf-40ff-9b23-956c211671ab1701601965514-M--SWEATSHIRT.jpg",
+                name: 'Sweatshirt',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/ef6f833c-37bf-40ff-9b23-956c211671ab1701601965514-M--SWEATSHIRT.jpg',
             },
             {
-                name: "Shirts",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/70acc32d-b72f-4727-88e3-e835c67ff5e01701601965541-M--SHIRTS.jpg",
+                name: 'Shirts',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/70acc32d-b72f-4727-88e3-e835c67ff5e01701601965541-M--SHIRTS.jpg',
             },
             {
-                name: "T-shirt",
-                imageUrl: "https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/f415d418-10f2-4b96-8ea8-2b6c22a8781a1701601965496-M--TSHIRT.jpg",
+                name: 'T-shirt',
+                imageUrl:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_auto:eco,w_72,c_limit,fl_progressive/w_72,h_94,q_60,,dpr_2,fl_progressive/assets/images/2023/12/3/f415d418-10f2-4b96-8ea8-2b6c22a8781a1701601965496-M--TSHIRT.jpg',
             },
         ],
         Shirts: [
@@ -206,21 +243,24 @@ const dummyData = [
                 uploadedBy: 'John Doe',
                 contactNumber: '123-456-7890',
                 location: 'Indore, India',
-                image: 'https://assets.myntassets.com/f_webp,dpr_1.5,q_60,w_400,c_limit,fl_progressive/assets/images/20421124/2022/10/17/2dd1cc94-8bed-4f0f-8c95-a785a9910a3c1665981279300HERENOWMenMulticolouredSlimFitPrintedCasualShirt1.jpg',
+                image:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_60,w_400,c_limit,fl_progressive/assets/images/20421124/2022/10/17/2dd1cc94-8bed-4f0f-8c95-a785a9910a3c1665981279300HERENOWMenMulticolouredSlimFitPrintedCasualShirt1.jpg',
             },
             {
                 name: 'Formal Shirts',
                 uploadedBy: 'John Doe',
                 contactNumber: '123-456-7890',
                 location: 'Indore, India',
-                image: 'https://assets.myntassets.com/f_webp,dpr_1.5,q_60,w_400,c_limit,fl_progressive/assets/images/21281958/2022/12/22/dd0b1338-7711-4d5c-958a-21662250a8ab1671723030313Shirts1.jpg',
+                image:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_60,w_400,c_limit,fl_progressive/assets/images/21281958/2022/12/22/dd0b1338-7711-4d5c-958a-21662250a8ab1671723030313Shirts1.jpg',
             },
             {
                 name: 'Sporty T-shirts',
                 uploadedBy: 'John Doe',
                 contactNumber: '123-456-7890',
                 location: 'Indore, India',
-                image: 'https://assets.myntassets.com/f_webp,dpr_1.5,q_60,w_400,c_limit,fl_progressive/assets/images/2127876/2017/11/23/11511431472633-Roadster-Men-Black-Regular-Fit-Solid-Casual-Shirt-8801511431472500-1.jpg',
+                image:
+                    'https://assets.myntassets.com/f_webp,dpr_1.5,q_60,w_400,c_limit,fl_progressive/assets/images/2127876/2017/11/23/11511431472633-Roadster-Men-Black-Regular-Fit-Solid-Casual-Shirt-8801511431472500-1.jpg',
             },
             {
                 name: 'Classical Shirts',
@@ -247,7 +287,8 @@ const StyleExchange = ({ navigation }) => {
     const [page, setPage] = useState(0);
     const [sorts, setSorts] = useState('');
     const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
-    const [bottomSheetVisibleFilter, setBottomSheetVisibleFilter] = useState(false);
+    const [bottomSheetVisibleFilter, setBottomSheetVisibleFilter] =
+        useState(false);
     const [isFilterContainerSticky, setIsFilterContainerSticky] = useState(false);
 
     const inputRef = useRef(null);
@@ -256,34 +297,32 @@ const StyleExchange = ({ navigation }) => {
     const sortSnapPoints = useMemo(() => ['50%', '50%'], []);
     const FilterSnapPoints = useMemo(() => ['75%', '75%'], []);
 
-
-    const productRes = useSelector((state) => state.ProductListReducer.PRODUCTLIST);
-    const loadingRes = useSelector((state) => state.ProductListReducer.loading);
+    const productRes = useSelector(state => state.ProductListReducer.PRODUCTLIST);
+    const loadingRes = useSelector(state => state.ProductListReducer.loading);
     // console.log("🚀 ~ file: StyleExchange.js:248 ~ StyleExchange ~ loadingRes:", loadingRes)
 
     useEffect(() => {
         if (productRes) {
-            setProductList((prev) => [...prev, ...productRes.filteredProducts]);
+            setProductList(prev => [...prev, ...productRes.filteredProducts]);
         }
     }, [productRes]);
 
     useEffect(() => {
         if (activeButton === 'Women') {
             let data = [];
-            data.push(dummyData[0])
-            setMainData(data)
+            data.push(dummyData[0]);
+            setMainData(data);
         } else if (activeButton === 'Men') {
             let data = [];
-            data.push(dummyData[1])
-            setMainData(data)
+            data.push(dummyData[1]);
+            setMainData(data);
         }
-    }, [activeButton])
+    }, [activeButton]);
 
-    const fetchProducts = (params) => {
-
-        dispatch(ProductListAction(params))
-    }
-    const handleScroll = (event) => {
+    const fetchProducts = params => {
+        dispatch(ProductListAction(params));
+    };
+    const handleScroll = event => {
         const scrollY = event.nativeEvent.contentOffset.y;
 
         setIsFilterContainerSticky(scrollY > height - 43);
@@ -299,23 +338,32 @@ const StyleExchange = ({ navigation }) => {
 
     const renderCategoryButton = () => (
         <View style={styles.buttonRowContainer}>
-            {renderButton('Women', 'Women\'s')}
-            {renderButton('Men', 'Men\'s')}
+            {renderButton('Women', "Women's")}
+            {renderButton('Men', "Men's")}
         </View>
     );
 
     const renderButton = (buttonType, label) => (
         <LinearGradient
-            colors={activeButton === buttonType ? AppColor.LinearGradient1 : ['#F5F5F5', '#F8F8FF']}
-            style={styles.button}
-        >
+            colors={
+                activeButton === buttonType
+                    ? AppColor.LinearGradient1
+                    : ['#F5F5F5', '#F8F8FF']
+            }
+            style={styles.button}>
             <TouchableOpacity
                 style={styles.buttonTouchable}
-                onPress={() => setActiveButton(buttonType)}
-            >
-                <Text style={[styles.buttonText, {
-                    color: activeButton === buttonType ? AppColor.white : AppColor.black,
-                }]}>{label}</Text>
+                onPress={() => setActiveButton(buttonType)}>
+                <Text
+                    style={[
+                        styles.buttonText,
+                        {
+                            color:
+                                activeButton === buttonType ? AppColor.white : AppColor.black,
+                        },
+                    ]}>
+                    {label}
+                </Text>
             </TouchableOpacity>
         </LinearGradient>
     );
@@ -324,15 +372,14 @@ const StyleExchange = ({ navigation }) => {
         const hexagonSize = '100%'; // Customize the size of the hexagon as needed
 
         return (
-            <TouchableOpacity onPress={() => navigation.navigate('ProductListing',
-                { search: "" })} style={styles.subCategoryContainer}>
+            <TouchableOpacity
+                onPress={() => navigation.navigate('ProductListing', { search: '' })}
+                style={styles.subCategoryContainer}>
                 <View style={styles.hexagon}>
                     <ImageBackground
-                        resizeMode='contain'
+                        resizeMode="contain"
                         source={{ uri: item.imageUrl }}
-                        style={{ width: hexagonSize, height: hexagonSize, }}
-                    >
-                    </ImageBackground>
+                        style={{ width: hexagonSize, height: hexagonSize }}></ImageBackground>
                 </View>
             </TouchableOpacity>
         );
@@ -341,7 +388,14 @@ const StyleExchange = ({ navigation }) => {
     const ProductCard = ({ product }) => {
         const { name, uploadedBy, contactNumber, location, image } = product;
         return (
-            <TouchableOpacity style={styles.cardContainer}>
+            <TouchableOpacity
+                // onPress={() =>
+                //     AsyncStorage.setItem(
+                //         'Token',
+                //         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2Q5ZjY1ODNiNzc3ZjJhYzU4YjRjZiIsImlhdCI6MTcwNDcxNzMxMSwiZXhwIjoxNzA0NzM1MzExfQ.GqcxQ-Mg0Ec30f9e5NerKEHBAclpWMKQ31oXAqhld6M',
+                //     )
+                // }
+                style={styles.cardContainer}>
                 <Image source={{ uri: image }} style={styles.productImage} />
                 <Text style={styles.productName}>{name}</Text>
                 <Text style={styles.productDetails}>
@@ -355,29 +409,26 @@ const StyleExchange = ({ navigation }) => {
 
     const renderProductCard = useCallback(({ item }) => {
         return (
-            <TouchableOpacity onPress={() => navigation.navigate('ProductListing', { item })} style={styles.cardContainer1}>
+            <TouchableOpacity
+                onPress={() => navigation.navigate('ProductListing', { item })}
+                style={styles.cardContainer1}>
                 <TouchableOpacity
-                    //  onPress={() => handleWishListApi(item.id)} 
-                    style={styles.favoriteButton}
-                >
-                    <Icon
-                        name="heart"
-                        size={22}
-                        color={AppColor.grey}
-                    />
+                    //  onPress={() => handleWishListApi(item.id)}
+                    style={styles.favoriteButton}>
+                    <Icon name="heart" size={22} color={AppColor.grey} />
                 </TouchableOpacity>
-                <View style={styles.card} >
+                <View style={styles.card}>
                     <Image
                         source={{
-                            uri: item && item.upload && item.upload[0]
+                            uri: item && item.upload && item.upload[0],
                         }}
                         style={styles.image}
                     />
-                    <Text numberOfLines={1} style={styles.title}>{item.brand}</Text>
+                    <Text numberOfLines={1} style={styles.title}>
+                        {item.brand}
+                    </Text>
                     <View style={styles.priceContainer}>
-                        <Text style={styles.discountPercentage}>
-                            12%
-                        </Text>
+                        <Text style={styles.discountPercentage}>12%</Text>
                         <Text style={styles.discount}>₹123123.21</Text>
                         <Text style={styles.price}>{item.price}</Text>
                     </View>
@@ -397,8 +448,8 @@ const StyleExchange = ({ navigation }) => {
         let params = {
             page: newPage,
             perPage: 10,
-            sort: sorts
-        }
+            sort: sorts,
+        };
         fetchProducts(params);
     };
 
@@ -419,68 +470,73 @@ const StyleExchange = ({ navigation }) => {
         setBottomSheetVisibleFilter(true);
         bottomSheetFilterRef.current?.expand();
     };
-    const handleSortOption = (option) => {
+    const handleSortOption = option => {
         const newPage = 1;
-        setSorts(option)
+        setSorts(option);
         setPage(newPage);
         let params = {
             page: newPage,
             perPage: 10,
-            sort: option
-        }
+            sort: option,
+        };
         fetchProducts(params);
-        setProductList([])
+        setProductList([]);
         closeBottomSheet();
     };
-    const handleFilterOption = (option) => {
-
+    const handleFilterOption = option => {
         closeBottomSheetFilter();
     };
-    const renderItem = useCallback(({ item }) => {
-        console.log("Render item called");
-        return (
-            <View>
-                <View style={styles.subCategoryFlatlist}>
-                    <FlatList
-                        horizontal
-                        data={item.sub_categories.slice(0, 8)}
-                        keyExtractor={(item, index) => index.toString()}
-                        renderItem={renderSubCategoryItem}
-                        showsHorizontalScrollIndicator={false}
-                    />
-                </View>
-                <View style={styles.subCategoryFlatlist}>
-                    <FlatList
-                        horizontal
-                        data={item.sub_categories.slice(8)}
-                        keyExtractor={(item, index) => index.toString()}
-                        renderItem={renderSubCategoryItem}
-                        showsHorizontalScrollIndicator={false}
-                    />
-                </View>
-                <View style={{ height: height / 6.5, width: width }}>
-                    <Slider data={[1, 2, 3, 4, 5, 6]} />
-                </View>
-                <View style={styles.categoryContainer}>
+    const renderItem = useCallback(
+        ({ item }) => {
+            console.log('Render item called');
+            return (
+                <View>
+                    <View style={styles.subCategoryFlatlist}>
+                        <FlatList
+                            horizontal
+                            data={item.sub_categories.slice(0, 8)}
+                            keyExtractor={(item, index) => index.toString()}
+                            renderItem={renderSubCategoryItem}
+                            showsHorizontalScrollIndicator={false}
+                        />
+                    </View>
+                    <View style={styles.subCategoryFlatlist}>
+                        <FlatList
+                            horizontal
+                            data={item.sub_categories.slice(8)}
+                            keyExtractor={(item, index) => index.toString()}
+                            renderItem={renderSubCategoryItem}
+                            showsHorizontalScrollIndicator={false}
+                        />
+                    </View>
+                    <View style={{ height: height / 6.5, width: width }}>
+                        <Slider data={[1, 2, 3, 4, 5, 6]} />
+                    </View>
+                    <View style={styles.categoryContainer}>
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                paddingHorizontal: 5,
+                            }}>
+                            <Text style={[customStyles.heading, {}]}>
+                                {item.Saree ? 'Sarees' : 'Shirts'}
+                            </Text>
+                            <Text style={customStyles.semiBoldText}>View All</Text>
+                        </View>
 
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 5 }}>
-                        <Text style={[customStyles.heading, {
-                        }]}>{item.Saree ? 'Sarees' : 'Shirts'}</Text>
-                        <Text style={customStyles.semiBoldText}>View All</Text>
+                        <FlatList
+                            data={item.Saree || item.Shirts}
+                            keyExtractor={(item, index) => index.toString()}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            renderItem={({ item }) => <ProductCard product={item} />}
+                        />
                     </View>
 
-                    <FlatList
-                        data={item.Saree || item.Shirts}
-                        keyExtractor={(item, index) => index.toString()}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        renderItem={({ item }) => <ProductCard product={item} />}
-                    />
-                </View>
-
-                <View style={styles.productListContainer}>
-                    {
-                        !loadingRes && productList.length > 0 ? (
+                    <View style={styles.productListContainer}>
+                        {!loadingRes && productList.length > 0 ? (
                             <FlatList
                                 data={productList}
                                 renderItem={renderProductCard}
@@ -492,42 +548,50 @@ const StyleExchange = ({ navigation }) => {
                                 ListHeaderComponent={() => {
                                     return (
                                         <View style={styles.FilterContainer}>
-                                            <TouchableOpacity onPress={openBottomSheet} style={styles.filtersView}>
+                                            <TouchableOpacity
+                                                onPress={openBottomSheet}
+                                                style={styles.filtersView}>
                                                 <Text style={customStyles.boldText}>Sort</Text>
                                             </TouchableOpacity>
-                                            <TouchableOpacity onPress={openBottomSheetFilter} style={styles.filtersView}>
+                                            <TouchableOpacity
+                                                onPress={openBottomSheetFilter}
+                                                style={styles.filtersView}>
                                                 <Text style={customStyles.boldText}>filter</Text>
                                             </TouchableOpacity>
                                         </View>
-                                    )
+                                    );
                                 }}
                                 ListFooterComponent={() => {
                                     if (loadingRes) {
                                         return (
                                             <View style={{ minHeight: height / 4 }}>
-                                                <ActivityIndicator size="large" color={AppColor.black} />
+                                                <ActivityIndicator
+                                                    size="large"
+                                                    color={AppColor.black}
+                                                />
                                             </View>
                                         );
                                     } else {
                                         return null;
                                     }
                                 }}
-
                             />
                         ) : (
                             <View style={{}}>
                                 <ActivityIndicator size="large" color={AppColor.black} />
                             </View>
-                        )
-                    }
+                        )}
+                    </View>
                 </View>
-            </View>
-        );
-    }, [productList]);
+            );
+        },
+        [productList],
+    );
     return (
         <SafeAreaView style={styles.container}>
             <Header />
-            <SafeAreaView style={[styles.container, { backgroundColor: AppColor.white }]}>
+            <SafeAreaView
+                style={[styles.container, { backgroundColor: AppColor.white }]}>
                 <View style={styles.searchContainer}>
                     <View style={styles.inputContainer}>
                         <TouchableOpacity onPress={handleSearch}>
@@ -547,9 +611,7 @@ const StyleExchange = ({ navigation }) => {
                             onFocus={searchBottomSheetOpen}
                         />
                     </View>
-                    <View style={styles.buttonContainer}>
-                        {renderCategoryButton()}
-                    </View>
+                    <View style={styles.buttonContainer}>{renderCategoryButton()}</View>
                 </View>
                 <View style={styles.FlatListcontainer}>
                     <FlatList
@@ -563,11 +625,18 @@ const StyleExchange = ({ navigation }) => {
                     />
                     {isFilterContainerSticky && (
                         <View
-                            style={[styles.FilterContainer, { position: 'absolute', top: 0, width: '100%' }]}>
-                            <TouchableOpacity onPress={openBottomSheet} style={styles.filtersView}>
+                            style={[
+                                styles.FilterContainer,
+                                { position: 'absolute', top: 0, width: '100%' },
+                            ]}>
+                            <TouchableOpacity
+                                onPress={openBottomSheet}
+                                style={styles.filtersView}>
                                 <Text style={customStyles.boldText}>Sort</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={openBottomSheetFilter} style={styles.filtersView}>
+                            <TouchableOpacity
+                                onPress={openBottomSheetFilter}
+                                style={styles.filtersView}>
                                 <Text style={customStyles.boldText}>filter</Text>
                             </TouchableOpacity>
                         </View>
@@ -591,7 +660,6 @@ const StyleExchange = ({ navigation }) => {
                 )}
             </SafeAreaView>
         </SafeAreaView>
-
     );
 };
 
@@ -612,7 +680,7 @@ const styles = StyleSheet.create({
         // justifyContent: 'center',
         alignItems: 'center',
         // gap: 5,
-        flex: 0.3
+        flex: 0.3,
     },
     inputContainer: {
         width: width - 28,
@@ -625,7 +693,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingLeft: 10,
         marginTop: 2,
-        flex: 0.4
+        flex: 0.4,
     },
     input: {
         width: '90%',
@@ -638,8 +706,7 @@ const styles = StyleSheet.create({
         // height: '50%',
         justifyContent: 'center',
         alignItems: 'center',
-        flex: 0.6
-
+        flex: 0.6,
     },
     buttonRowContainer: {
         flexDirection: 'row',
@@ -670,7 +737,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         alignItems: 'center',
         margin: 5,
-        backgroundColor: AppColor.smokeWhite
+        backgroundColor: AppColor.smokeWhite,
     },
     hexagon: {
         aspectRatio: 1,
@@ -679,7 +746,7 @@ const styles = StyleSheet.create({
         height: 100,
         marginBottom: 5,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     categoryContainer: {
         // margin: 10,
@@ -690,7 +757,7 @@ const styles = StyleSheet.create({
     subCategoryFlatlist: {
         // backgroundColor: 'red',
         width: width,
-        height: 'auto'
+        height: 'auto',
     },
     cardContainer: {
         // borderWidth: 1,
@@ -698,7 +765,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         padding: 10,
         margin: 5,
-        backgroundColor: AppColor.smokeWhite
+        backgroundColor: AppColor.smokeWhite,
     },
     productImage: {
         // width: width / 2,
@@ -710,20 +777,20 @@ const styles = StyleSheet.create({
         fontSize: responsiveFontSize(2),
         fontFamily: Fonts.lobster.regular,
         marginTop: 10,
-        color: AppColor.black
+        color: AppColor.black,
     },
     productDetails: {
         fontSize: responsiveFontSize(1),
         marginTop: 5,
         fontFamily: Fonts.poppins.medium,
-        color: AppColor.titleColor
+        color: AppColor.titleColor,
     },
     productListContainer: {
         marginTop: 5,
         flex: 1,
         width: '100%',
         alignItems: 'center',
-        minHeight: 100
+        minHeight: 100,
     },
     cardContainer1: {
         width: width / numColumns - 8,
@@ -792,7 +859,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: AppColor.white,
         height: height / 20,
-
     },
     filtersView: {
         justifyContent: 'center',
@@ -806,6 +872,6 @@ const styles = StyleSheet.create({
     heading: {
         fontSize: responsiveFontSize(2),
         fontFamily: Fonts.poppins.semiBold,
-        paddingLeft: 10
+        paddingLeft: 10,
     },
 });

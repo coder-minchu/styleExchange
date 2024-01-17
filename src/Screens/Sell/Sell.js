@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Alert, Image, Platform, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Button, Text, TextInput, IconButton, Appbar, Checkbox } from 'react-native-paper';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Alert, Image, Platform, Modal, ScrollView, StyleSheet, TouchableOpacity, View, SafeAreaView, FlatList } from 'react-native';
+import { Button, Text, TextInput, IconButton, Appbar, Checkbox, Portal, Title, } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
 import { CategoriesAction } from '../../Redux/Action/CategoriesAction';
 import { AppColor } from '../../utils/AppColor';
@@ -13,10 +13,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import Geolocation from '@react-native-community/geolocation';
+import axios from 'axios';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import Iconn from 'react-native-vector-icons/Ionicons';
+import Icons from 'react-native-vector-icons/Feather';
 
 const Sell = ({ navigation }) => {
   const dispatch = useDispatch();
-
+  const flatListRef = useRef(null);
+  const [loading, setLoading] = useState(false);
+  const [locationModalVisible, setLocationModalVisible] = useState(false);
+  const [isFullScreenModalVisible, setFullScreenModalVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
@@ -27,6 +34,12 @@ const Sell = ({ navigation }) => {
   const [categoriesData, setCategoriesData] = useState([]);
   const [selectedButton, setSelectedButton] = useState(null);
   const [selectedSubSubButton, setSelectedSubSubButton] = useState(null);
+  const [states, setStates] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentImageIndex, setcurrentImageIndex] = useState(0);
+  const [selectedState, setSelectedState] = useState(null);
+  const [suggestions, setSuggestions] = useState([]);
+
   const [selectedData, setSelectedData] = useState({
     parentCategories_Id: "",
     subCategories_Id: "",
@@ -48,7 +61,6 @@ const Sell = ({ navigation }) => {
     state: "",
     upload: "",
   });
-  console.log("🚀 ~ file: Sell.js:25 ~ Sell ~ location:", location)
   const {
     parentCategories_Id,
     subCategories_Id,
@@ -72,6 +84,8 @@ const Sell = ({ navigation }) => {
   } = selectedData;
 
   const categoriesRes = useSelector((state) => state.CategoriesReducer.CATEGORIES);
+  const addProductRes = useSelector((state) => state.SellReducer.SELLDATA);
+  // console.log("🚀 ~ file: Sell.js:82 ~ Sell ~ addProductRes:", addProductRes);
 
   useEffect(() => {
     requestLocationPermission();
@@ -87,7 +101,36 @@ const Sell = ({ navigation }) => {
     }
   }, [categoriesRes]);
 
-
+  useEffect(() => {
+    if (addProductRes.message === 'Add Products Successfully!') {
+      setLoading(false);
+      setSelectedData({
+        parentCategories_Id: "",
+        subCategories_Id: "",
+        sub_subCategories_Id: "",
+        title: "",
+        description: "",
+        price: "",
+        depositAmount: "",
+        details: "",
+        condition: "",
+        brand: "",
+        size: "",
+        purchasePrice: "",
+        status: "",
+        longitude: "",
+        latitude: "",
+        address: "",
+        city: "",
+        state: "",
+        upload: "",
+      })
+      navigation.navigate('UploadedProducts');
+      setCurrentStep(1)
+    } else {
+      setLoading(false);
+    }
+  }, [addProductRes]);
 
   const fetchCategories = () => {
     try {
@@ -99,6 +142,7 @@ const Sell = ({ navigation }) => {
   const getCurrentLocation = () => {
     Geolocation.getCurrentPosition(
       (position) => {
+        getCityStateArea(position.coords.latitude, position.coords.longitude)
         setLocation({
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
@@ -122,6 +166,46 @@ const Sell = ({ navigation }) => {
       console.error('Error requesting location permission:', error);
     }
   };
+
+  const getCityStateArea = async (latitude, longitude) => {
+    try {
+      const response = await axios.get(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyAuotoEbFO5U5Dkq9b0Gc6d2Cv4Hvqihl8`
+      );
+      // console.log("🚀 ~ file: Sell.js:133 ~ getCityStateArea ~ response:", response)
+
+      if (response.data.results.length > 0) {
+        const addressComponents = response.data.results[0].address_components;
+        let city = '';
+        let state = '';
+        let area = '';
+
+        for (const component of addressComponents) {
+          if (component.types.includes('locality')) {
+            city = component.long_name;
+          } else if (component.types.includes('administrative_area_level_1')) {
+            state = component.long_name;
+          } else if (
+            component.types.includes('sublocality') ||
+            component.types.includes('neighborhood')
+          ) {
+            area = component.long_name;
+          }
+        }
+
+        console.log(city, state, area);
+        setSelectedData({ ...selectedData, city: city, state: state, address: area, latitude: latitude, longitude: longitude });
+
+        return { city, state, area };
+      } else {
+        throw new Error('No results found');
+      }
+    } catch (error) {
+      console.error('Error in reverse geocoding:', error);
+      return { city: '', state: '', area: '' };
+    }
+  };
+
 
   const requestPlatformSpecificPermission = async () => {
     let permission;
@@ -160,17 +244,23 @@ const Sell = ({ navigation }) => {
   };
 
   const handleSubmitButton = async () => {
-    let token = await AsyncStorage.getItem('Token');
-    try {
-      let params = {
-        ...selectedData,
-        token
+    if (isValidData()) {
+      setLoading(true);
+      const token = await AsyncStorage.getItem('Token');
+      const parseToken = JSON.parse(token);
+      try {
+        let params = {
+          ...selectedData,
+          token,
+        };
+        dispatch(SellAction(params, parseToken));
+        console.log(params);
+      } catch (error) {
+        // Handle error
+        setLoading(false);
       }
-      dispatch(SellAction(params))
-      console.log(params);
-    } catch (error) {
-
     }
+
   };
 
   const handleBackButton = () => {
@@ -215,29 +305,104 @@ const Sell = ({ navigation }) => {
     }
   };
 
+  const isValidData = () => {
+    if (!selectedData.title) {
+      Alert.alert('Please enter a title');
+      return false;
+    }
+
+    if (!selectedData.description) {
+      Alert.alert('Please enter a description');
+      return false;
+    }
+
+    if (!selectedData.price) {
+      Alert.alert('Please enter a price');
+      return false;
+    }
+
+    if (!selectedData.depositAmount) {
+      Alert.alert('Please enter a deposit amount');
+      return false;
+    }
+
+    if (!selectedData.details) {
+      Alert.alert('Please enter details');
+      return false;
+    }
+
+    if (!selectedData.condition) {
+      Alert.alert('Please enter a condition');
+      return false;
+    }
+
+    if (!selectedData.brand) {
+      Alert.alert('Please enter a brand');
+      return false;
+    }
+
+    if (!selectedData.size) {
+      Alert.alert('Please enter a size');
+      return false;
+    }
+
+    if (!selectedData.purchasePrice) {
+      Alert.alert('Please enter a purchase price');
+      return false;
+    }
+
+    if (!selectedData.status) {
+      Alert.alert('Please enter a status');
+      return false;
+    }
+
+    // Add similar checks for other fields
+
+    return true;
+  };
+
 
   const handleNextButton = () => {
     switch (currentStep) {
       case 1:
-        if (selectedCategory) {
-          setCurrentStep(currentStep + 1);
-        } else {
+        if (!selectedData.parentCategories_Id) {
           Alert.alert('Please select a category');
+          return;
+        } else {
+          setCurrentStep(currentStep + 1);
         }
         break;
       case 2:
-        if (selectedButton) {
-          setCurrentStep(currentStep + 1);
+        if (!selectedData.subCategories_Id) {
+          Alert.alert('Please select a Sub-category');
+          return;
         } else {
-          Alert.alert('Please select a sub-category');
+          setCurrentStep(currentStep + 1);
         }
         break;
-        // case 3:
-        //   if (selectedSubSubButton) {
-        //     setCurrentStep(currentStep + 1);
-        //   } else {
-        //     Alert.alert('Please select a sub-sub-category');
-        //   }
+      case 3:
+        if (!selectedData.sub_subCategories_Id) {
+          Alert.alert('Please select a Sub-Sub-category');
+          return;
+        } else {
+          setCurrentStep(currentStep + 1);
+        }
+        break;
+      case 4:
+        if (!selectedData.upload && selectedData.upload.length === 0) {
+          Alert.alert('Please select Images');
+          return;
+        } else {
+          setCurrentStep(currentStep + 1);
+        }
+        break;
+      case 5:
+        if (!selectedData.latitude && !selectedData.longitude && !selectedData.city && !selectedData.state) {
+          Alert.alert('Please select a Current location');
+          return;
+        } else {
+          setCurrentStep(currentStep + 1);
+        }
         break;
       default:
         setCurrentStep(currentStep + 1);
@@ -248,6 +413,46 @@ const Sell = ({ navigation }) => {
   const setSelectedDataField = (field, value) => {
     setSelectedData((prevData) => ({ ...prevData, [field]: value }));
   };
+
+  const handleFullScreenModalClose = () => {
+    setFullScreenModalVisible(false);
+  };
+  const handleSelectLocation = (item) => {
+    console.log('Selected location item:', item);
+    getCityStateArea(item.lat, item.lon);
+    setFullScreenModalVisible(!isFullScreenModalVisible);
+  };
+  const debouncedSearch = useCallback(
+    debounce(async (text) => {
+      const apiUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=IN&q=${text}`;
+
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        setSuggestions(data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+
+
+    }, 200), []
+  );
+
+  const handleSearchTextChange = (text) => {
+    setSearchQuery(text);
+    debouncedSearch(text);
+  };
+  const handleSearchSubmit = () => {
+    // setFullScreenModalVisible(!isFullScreenModalVisible)
+  };
+
+  const onViewableItemsChanged = ({
+    viewableItems,
+  }) => {
+    console.log(flatListRef.current);
+    setcurrentImageIndex(viewableItems[0].index)
+  };
+  const viewabilityConfigCallbackPairs = useRef([{ onViewableItemsChanged }])
 
   return (
     <View style={styles.container}>
@@ -262,7 +467,7 @@ const Sell = ({ navigation }) => {
       </Appbar.Header>
 
       <View style={styles.stepContainer}>
-        {currentStep === 5 && (
+        {currentStep === 1 && (
           <View style={styles.bottomSheetContainer}>
             {categoriesData && categoriesData.length > 0 && categoriesData.map((val) => (
               <View key={val.id}>
@@ -323,7 +528,7 @@ const Sell = ({ navigation }) => {
 
         {currentStep === 4 && (
           <View style={{ flex: 1, justifyContent: 'center' }}>
-            <View style={{}}>
+            <View style={{ flex: 0.2 }}>
 
               <Button
                 mode="outlined"
@@ -334,71 +539,48 @@ const Sell = ({ navigation }) => {
               >Select Image</Button>
             </View>
 
-            <View style={{ flex: 1, backgroundColor: 'white', marginTop: 10, alignItems: 'center' }}>
-              {media && media.map((val, idx) => (
-                <Image key={idx} source={{ uri: val.path }} style={{ width: width / 4, height: width / 4, marginVertical: 20 }} />
+            <View style={{ flex: 0.8, backgroundColor: 'white', alignItems: 'center', width: width - 30 }}>
+              <FlatList
+                data={media}
+                horizontal
+                pagingEnabled
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item, index }) => (
+                  <Image
+                    key={index}
+                    ref={flatListRef}
+                    source={{ uri: item.path }}
+                    style={{ width: width - 30, height: width / 2, resizeMode:'contain' }}
+                  />
+                )}
+                viewabilityConfigCallbackPairs={viewabilityConfigCallbackPairs.current}
+                // ListFooterComponent={({ item, index }) => (
+                //   <Title style={styles.title} >{`${index + 1}/${media && media.length}`}</Title>
 
-              ))}
+                // )}
+                showsHorizontalScrollIndicator={false}
+              />
+              {media && media.length > 0 && <Title style={styles.title} >{`${currentImageIndex + 1}/${media && media.length}`}</Title>
+              }
             </View>
           </View>
         )}
 
-        {location && currentStep === 1 && (
+        {currentStep === 5 && (
           <View style={styles.containerMap}>
-            <MapView
-              showsUserLocation
-              provider={PROVIDER_GOOGLE}
-              style={styles.map}
-              region={{
-                latitude: parseFloat(location?.latitude),
-                longitude: parseFloat(location?.longitude),
-                latitudeDelta: 0.015,
-                longitudeDelta: 0.0121,
-              }}
-            >
-            </MapView>
+            {/* <Button title="Current location" mode='outlined' style={{ width: width - 50 }} /> */}
+            <TouchableOpacity onPress={requestLocationPermission} style={{ borderWidth: 1, borderColor: AppColor.borderColor, height: 35, width: width - 30, alignItems: 'center', borderRadius: 5, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 5 }}>
+              <Icon name="my-location" color={AppColor.grey} size={height / 50} />
+              <Text style={[customStyles.mediumText, { color: AppColor.grey, fontSize: responsiveFontSize(1.3) }]}>{`Current location: ${address} ${city}`}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => {
+              setFullScreenModalVisible(!isFullScreenModalVisible);
+              // fetchAllStates();
+            }} style={{ borderWidth: 1, borderColor: AppColor.borderColor, height: 35, width: width - 30, alignItems: 'center', borderRadius: 5, justifyContent: 'center', alignItems: 'center' }}>
+              <Text style={[customStyles.mediumText, { color: AppColor.grey, fontSize: responsiveFontSize(1.3) }]}>Somewhere else</Text>
+            </TouchableOpacity>
           </View>
-          // <View>
-          //   <TextInput
-          //     label="Latitude"
-          //     value={selectedData.latitude}
-          //     style={styles.Textinput}
-          //     mode="outlined"
-          //     onChangeText={(text) => setSelectedData({ ...selectedData, latitude: text })}
-          //     keyboardType="numeric"
-          //   />
-          //   <TextInput
-          //     label="Longitude"
-          //     value={selectedData.longitude}
-          //     style={styles.Textinput}
-          //     mode="outlined"
-          //     onChangeText={(text) => setSelectedData({ ...selectedData, longitude: text })}
-          //     keyboardType="numeric"
-          //   />
-          //   <TextInput
-          //     label="State"
-          //     value={selectedData.state}
-          //     style={styles.Textinput}
-          //     mode="outlined"
-          //     onChangeText={(text) => setSelectedData({ ...selectedData, state: text })}
-          //   />
-          //   <TextInput
-          //     label="City"
-          //     value={selectedData.city}
-          //     style={styles.Textinput}
-          //     mode="outlined"
-          //     onChangeText={(text) => setSelectedData({ ...selectedData, city: text })}
-          //   />
-          //   <TextInput
-          //     label="Address"
-          //     value={selectedData.address}
-          //     style={styles.Textinput}
-          //     mode="outlined"
-          //     onChangeText={(text) => setSelectedData({ ...selectedData, address: text })}
-          //   />
-          // </View>
         )}
-
 
         {currentStep === 6 && (
           <ScrollView>
@@ -494,15 +676,78 @@ const Sell = ({ navigation }) => {
             mode="contained"
             onPress={handleSubmitButton}
             style={styles.button}
+            loading={loading}
           >
             Submit
           </Button>
         )}
       </View>
+      <Modal visible={isFullScreenModalVisible} onDismiss={handleFullScreenModalClose} contentContainerStyle={styles.fullScreenModalContainer}>
+        <View style={{ flex: 1 }}>
+          <Appbar.Header mode='small'>
+            <IconButton icon="arrow-left" onPress={handleFullScreenModalClose} />
+            <Appbar.Content title="Location" />
+          </Appbar.Header>
+          <View>
+            <TextInput
+              mode='outlined'
+              placeholder="Search"
+              value={searchQuery}
+              onChangeText={handleSearchTextChange}
+              // onFocus={handleFocus}
+              // onBlur={handleBlur}
+              onSubmitEditing={handleSearchSubmit}
 
-    </View>
+              style={{ marginHorizontal: 10, height: 40 }}
+            />
+          </View>
+          <FlatList
+            data={suggestions}
+            keyExtractor={(item) => item.place_id}
+            renderItem={({ item }) => (
+              <View style={{
+                flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 0.5,
+                borderColor: AppColor.borderColor,
+                paddingHorizontal: 5,
+                // backgroundColor: 'red',
+                marginHorizontal: 10
+              }} >
+                <TouchableOpacity onPress={() => handleSelectLocation(item)} style={[styles.suggestionItem, { flexDirection: 'row' }]}>
+                  <Iconn
+                    name="search"
+                    size={height / 50}
+                    color={"#ccc"}
+                    style={styles.searchIcon}
+                  />
+                  <View style={{ width: '90%', justifyContent: 'center' }}>
+                    <Text style={[styles.suggestionText]}>
+                      {item.display_name}
+                    </Text>
+                  </View>
+
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setSearchQuery(item.display_name)} style={styles.suggestionItem}>
+                  <Icons name="arrow-up-left" size={height / 50} color="#000" />
+                </TouchableOpacity>
+              </View>
+            )}
+          />
+        </View>
+      </Modal>
+
+    </View >
   );
 };
+
+function debounce(func, wait) {
+  let timeout;
+  return function (...args) {
+    const context = this;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(context, args), wait);
+  };
+}
+
 
 const styles = StyleSheet.create({
   container: {
@@ -511,8 +756,9 @@ const styles = StyleSheet.create({
   },
   containerMap: {
     flex: 1,
-    justifyContent: 'flex-end',
+    // justifyContent: 'flex-end',
     alignItems: 'center',
+    gap: 20
   },
   map: {
     ...StyleSheet.absoluteFillObject,
@@ -557,7 +803,27 @@ const styles = StyleSheet.create({
   },
   Textinput: {
     margin: 10
-  }
+  },
+  fullScreenModalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  suggestionText: {
+    fontSize: responsiveFontSize(1.6),
+    color: AppColor.grey,
+    fontFamily: Fonts.poppins.regular,
+  },
+  suggestionItem: {
+    padding: height / 100,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    alignSelf: 'center',
+  },
+  title: {
+    fontSize: responsiveFontSize(1.6),
+    fontFamily: Fonts.poppins.semiBold,
+  },
 });
 
 export default Sell;

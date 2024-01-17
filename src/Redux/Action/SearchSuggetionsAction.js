@@ -7,6 +7,7 @@ export const SearchSuggetionsAction = params => {
             const response = await axios.post(`${BASE_URL}products/suggation`, params, {
                 headers: {
                     'Content-Type': 'application/json',
+                    "ngrok-skip-browser-warning": 'true',
                 }
             });
 

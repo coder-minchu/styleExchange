@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "800725012057",
+    "project_id": "styleexchange-fa960",
+    "storage_bucket": "styleexchange-fa960.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:800725012057:android:8d29e440331c2c7196eb48",
+        "android_client_info": {
+          "package_name": "com.styleexchange"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD45Cc-att5JYklwclPS4PiuKuxkAmUmXE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

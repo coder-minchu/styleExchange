@@ -1,5 +1,3 @@
-
-
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { View, FlatList, Text, Image, TextInput, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -201,11 +199,7 @@ const styles = StyleSheet.create({
     suggestionText: {
         fontSize: responsiveFontSize(1.6),
         color: AppColor.grey,
-        fontFamily: Fonts.PoppinsRegular,
-    },
-    suggestionText: {
-        fontSize: responsiveFontSize(1.5),
-        color: 'grey',
+        fontFamily: Fonts.poppins.regular,
     },
     brandText: {
         fontSize: responsiveFontSize(1),

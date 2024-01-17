@@ -8,6 +8,7 @@ export const AddWishlistAction = (params, token) => {
                 headers: {
                     'Authorization': token,
                     'Content-Type': 'application/json',
+                    "ngrok-skip-browser-warning": 'true',
                 }
             });
 
@@ -28,6 +29,7 @@ export const GetWishlistAction = (token) => {
                 headers: {
                     'Authorization': token,
                     'Content-Type': 'application/json',
+                    "ngrok-skip-browser-warning": 'true',
                 },
             });
 

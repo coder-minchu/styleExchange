@@ -1,4 +1,4 @@
-import { Platform, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { Alert, Platform, StatusBar, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -19,6 +19,10 @@ import ProductListing from './src/Screens/ProductListing';
 import { height } from './src/utils/Dimensions/Dimension';
 import WishList from './src/Screens/WishList';
 import EditProfile from './src/Screens/Account/EditProfile';
+import UploadedProducts from './src/Screens/UploadedProducts';
+import EditedProduct from './src/Screens/EditedProduct';
+import ChatScreen from './src/Screens/ChatScreen';
+import ChatDetailsScreen from './src/Screens/ChatDetailsScreen';
 
 const App = () => {
   const Stack = createNativeStackNavigator();
@@ -40,6 +44,7 @@ const App = () => {
       <Provider store={store}>
         <NavigationContainer>
           <Stack.Navigator
+            // initialRouteName='ChatDetailsScreen'
             screenOptions={{
               headerShadowVisible: true,
             }}>
@@ -87,9 +92,9 @@ const App = () => {
               name="ProductDetails"
               component={ProductDetails}
               options={{
-                // header:()=>null,
-                title: '',
-                headerRight: () => <Icon name="share-social-outline" color="black" size={height / 50} />,
+                header: () => null,
+                // title: '',
+                // headerRight: () => <Icon name="share-social-outline" color="black" size={height / 50} />,
               }}
             />
             <Stack.Screen
@@ -107,7 +112,18 @@ const App = () => {
               options={{
                 title: '',
               }} />
-
+            <Stack.Screen
+              name="UploadedProducts"
+              component={UploadedProducts}
+              options={{
+                title: 'Uploaded Products',
+              }} />
+            <Stack.Screen
+              name="EditedProduct"
+              component={EditedProduct}
+              options={{
+                title: 'Edit Products',
+              }} />
             <Stack.Screen
               name="Categories"
               component={Categories}
@@ -115,10 +131,20 @@ const App = () => {
                 title: 'Categories',
               }} />
             <Stack.Screen
+              name="ChatScreen"
+              component={ChatScreen}
+            />
+            <Stack.Screen
               name="SearchScreen"
               component={SearchScreen}
               options={{
                 header: () => null,
+              }} />
+            <Stack.Screen
+              name="ChatDetailsScreen"
+              component={ChatDetailsScreen}
+              options={{
+                // header: () => null,
               }} />
           </Stack.Navigator>
         </NavigationContainer>

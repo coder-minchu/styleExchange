@@ -14,10 +14,11 @@ const filterOptions = [
     { id: '5', label: 'Size', iconName: 'chevron-down' },
     { id: '6', label: 'Color', iconName: 'chevron-down' },
     { id: '7', label: 'Discount', iconName: 'chevron-down' },
-    { id: '8', label: 'Clear All', iconName: '' },
+    // { id: '8', label: 'Clear All', iconName: '' },
 ];
 
-const FilterList = ({ openBottomSheet }) => {
+const FilterList = ({ openBottomSheet, visibleSelectedFilters }) => {
+    // console.log("🚀 ~ file: FIlterList.js:21 ~ FilterList ~ visibleSelectedFilters:", visibleSelectedFilters)
     console.log('filterlist called')
     const animatedValues = useRef(filterOptions.map(() => new Animated.Value(0))).current;
 
@@ -53,9 +54,15 @@ const FilterList = ({ openBottomSheet }) => {
             ],
         };
 
+        const isSelected = visibleSelectedFilters.some(filter => filter.key === item.label) || (item.label === 'Filter' && visibleSelectedFilters.length > 0);
+
         return (
             <TouchableOpacity onPress={() => openBottomSheet(item.label)}>
-                <Animated.View style={[styles.filterCard, animatedStyle]}>
+                <Animated.View style={[
+                    styles.filterCard,
+                    animatedStyle,
+                    { borderColor: isSelected ? AppColor.black : AppColor.borderColor }
+                ]}>
                     <Text style={styles.filterLabel}>{item.label}</Text>
                     {item.iconName && <Icon name={item.iconName} size={height / 70} color={AppColor.black} />}
                 </Animated.View>
@@ -93,10 +100,5 @@ const styles = StyleSheet.create({
         fontSize: responsiveFontSize(1.2),
         fontFamily: Fonts.poppins.medium,
         color: AppColor.black,
-    },
-    filterClearText: {
-        fontSize: responsiveFontSize(1.2),
-        fontFamily: Fonts.poppins.regular,
-        color: AppColor.black,
-    },
+    }
 });

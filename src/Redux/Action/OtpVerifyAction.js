@@ -1,5 +1,7 @@
 import { BASE_URL } from '../../utils/BaseUrl';
 import axios from 'axios';
+import socketServcies from '../../utils/socketServcies';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const OtpVerifyAction = params => {
     console.log('OTP params', params);
@@ -13,6 +15,7 @@ export const OtpVerifyAction = params => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    "ngrok-skip-browser-warning": 'true',
                 },
                 body: raw,
             });
@@ -22,6 +25,11 @@ export const OtpVerifyAction = params => {
 
             if (res) {
                 dispatch({ type: 'OtpVerify', payload: res });
+                if (res.message === "login successfully") {
+                    await AsyncStorage.setItem('Token', JSON.stringify(res.token));
+                    await AsyncStorage.setItem('UserDetails', JSON.stringify(res.user));
+                    socketServcies.initializeSocket();
+                }
             } else {
                 dispatch({ type: 'OtpVerify', payload: res });
             }

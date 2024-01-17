@@ -7,6 +7,7 @@ export const BrandsAction = params => {
             const response = await axios.post(`${BASE_URL}brand`, params, {
                 headers: {
                     'Content-Type': 'application/json',
+                    "ngrok-skip-browser-warning": 'true',
                 }
             });
 

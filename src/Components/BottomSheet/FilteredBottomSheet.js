@@ -9,10 +9,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { BrandsAction } from '../../Redux/Action/GetBrandsAction';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-export default FilteredBottomSheet = ({ filters }) => {
+export default FilteredBottomSheet = ({ filters, setFiltersData, selectedFiltersFnc, setFilters }) => {
+
     const dispatch = useDispatch();
 
-    const [dummyFilters, setDummyFilters] = useState(filters);
+    const [dummyFilters, setDummyFilters] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedBrands, setSelectedBrands] = useState([]);
     const [allBrands, setAllBrands] = useState([]);
@@ -34,9 +35,11 @@ export default FilteredBottomSheet = ({ filters }) => {
                 };
             }
         });
+        // console.log("🚀 ~ file: FilteredBottomSheet.js:38 ~ updatedFilters ~ updatedFilters:", updatedFilters)
 
 
         setDummyFilters(updatedFilters);
+        setFilters(updatedFilters);
     };
 
     const handleSubFilterOption = (filterName, subFilterName, subIndex) => {
@@ -66,6 +69,7 @@ export default FilteredBottomSheet = ({ filters }) => {
         });
 
         setDummyFilters(updatedFilters);
+        setFilters(updatedFilters);
     };
 
 
@@ -82,6 +86,8 @@ export default FilteredBottomSheet = ({ filters }) => {
             })),
         }));
         setDummyFilters(clearedFilters);
+        setFilters(clearedFilters);
+        setFiltersData([])
     };
 
     const handleApply = () => {
@@ -109,12 +115,18 @@ export default FilteredBottomSheet = ({ filters }) => {
             });
         }
 
-        console.log('dummyFilters:', dummyFilters);
-        console.log('Selected Filters:', visibleSelectedFilters);
+        // console.log('dummyFilters:', dummyFilters);
+        setFiltersData(visibleSelectedFilters);
+        // console.log('Selected Filters:', visibleSelectedFilters);
+        selectedFiltersFnc(visibleSelectedFilters)
     };
 
 
-
+    useEffect(() => {
+        if (filters && filters.length > 0) {
+            setDummyFilters(filters)
+        }
+    }, [filters])
 
 
     useEffect(() => {
@@ -158,16 +170,18 @@ export default FilteredBottomSheet = ({ filters }) => {
                 return filter;
             }
         });
+        // console.log("🚀 ~ file: FilteredBottomSheet.js:178 ~ handleCheckboxToggle ~ updatedSelectedBrands:", updatedSelectedBrands)
 
         setSelectedBrands(updatedSelectedBrands);
         setDummyFilters(updatedFilters);
+        setFilters(updatedFilters);
     };
 
 
     const filteredBrands = allBrands.filter(brand =>
         brand?.brand?.toLowerCase().includes(searchQuery.toLowerCase())
     );
-    console.log("🚀 ~ file: FilteredBottomSheet.js:142 ~ filteredBrands:", filteredBrands)
+    // console.log("🚀 ~ file: FilteredBottomSheet.js:142 ~ filteredBrands:", filteredBrands)
     return (
         <View style={styles.bottomSheetContainer}>
             <View style={customStyles.headingView}>
