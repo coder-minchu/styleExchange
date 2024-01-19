@@ -1,51 +1,67 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, View, ActivityIndicator } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { List, Avatar } from 'react-native-paper';
 import socketServcies from '../../utils/socketServcies';
+import { AppColor } from '../../utils/AppColor';
 
 const AllComponent = () => {
   const navigation = useNavigation();
   const [chats, setChats] = useState([]);
-  // console.log("🚀 ~ AllComponent ~ chats:", chats)
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(true);
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
       socketServcies.emit('all_conversation_list');
       socketServcies.on('all_conversation_list_from_server', (list) => {
-        console.log("🚀 ~ socketServcies.on ~ list:", list);
-        setChats(list.array);
+        setChats(list.filterArray);
+        setIsLoading(false);
       });
     }, [])
   );
 
   const handleChatPress = (chatItem) => {
-    console.log("🚀 ~ handleChatPress ~ chatItem:", chatItem)
-    // Navigate to the chat screen with the selected chat item 
-    navigation.navigate('ChatDetailsScreen', { user_Id: chatItem?.user1_id });
+    navigation.navigate('ChatDetailsScreen', { user_Id: chatItem?.userId._id });
   };
 
   const renderChatItem = ({ item }) => {
-    console.log("🚀 ~ renderChatItem ~ item:", item.userId)
     return (
       <List.Item
-        title={item.userId.name}
+        title={item.userId.name ? item.userId.name : item.userId.phoneNumber}
         description={item.message}
         onPress={() => handleChatPress(item)}
         titleStyle={{ fontWeight: 'bold' }}
         descriptionStyle={{ color: 'gray' }}
         left={(props) => <Avatar.Image {...props} source={{ uri: 'https://source.unsplash.com/user/c_v_r/1900x800' }} />}
       />
-    )
+    );
   };
 
   return (
-    <FlatList
-      data={chats}
-      renderItem={renderChatItem}
-      keyExtractor={(item, index) => index.toString()}
-    />
+    <View style={{ flex: 1 }}>
+      {isLoading ? (
+        <ActivityIndicator style={styles.loader} size="large" color={AppColor.blueViolet} />
+      ) : (
+        <FlatList
+          data={chats}
+          renderItem={renderChatItem}
+          keyExtractor={(item, index) => index.toString()}
+        />
+      )}
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
 
 export default AllComponent;

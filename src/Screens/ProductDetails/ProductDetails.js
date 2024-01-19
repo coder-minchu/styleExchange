@@ -43,8 +43,6 @@ import dynamicLinks from '@react-native-firebase/dynamic-links';
 import { SingleProductAction } from '../../Redux/Action/GetAllProductListAction';
 import socketServcies from '../../utils/socketServcies';
 
-const numColumns = 2;
-
 const CustomHeader = ({ navigation, setAboutUsOverlayVisible, aboutUsOverlayVisible, productId }) => {
   const shareApplication = async () => {
     try {
@@ -157,23 +155,21 @@ const ProductDetails = ({ route, navigation }) => {
   const [otp2, setOtp2] = useState('');
   const [otp3, setOtp3] = useState('');
   const [otp4, setOtp4] = useState('');
+  const [userDetails, setUserDetails] = useState({});
 
   const bottomSheetRef = useRef(null);
   const otpBottomSheetRef = useRef(null);
   const scrollViewRef = useRef();
 
   const singleProductRes = useSelector(state => state.ProductListReducer.SINGLEPRODUCT);
-  console.log("🚀 ~ ProductDetails ~ singleProductRes:", singleProductRes)
+  // console.log("🚀 ~ ProductDetails ~ singleProductRes:", singleProductRes)
   const wishlistProductRes = useSelector(state => state.WishlistReducer.ADDWISHLIST);
   const loginRes = useSelector(state => state.LoginReducer.LOGINDATA);
   const otpRes = useSelector(state => state.OtpVerifyReducer.OTPVERIFY);
 
-    useEffect(() => {
-        socketServcies.initializeSocket();
-    }, []);
-
   useEffect(() => {
     if (product_id) {
+      fetchUserDetails();
       dispatch({ type: 'SingleProduct', payload: {} });
       fetchSingleProduct(product_id);
     }
@@ -238,6 +234,12 @@ const ProductDetails = ({ route, navigation }) => {
     } catch (error) { }
   };
 
+  const fetchUserDetails = async () => {
+    let details = await AsyncStorage.getItem('UserDetails');
+    let userParse = JSON.parse(details);
+    setUserDetails(userParse)
+  }
+
   const navigateToDashboard = async otpRes => {
     // await AsyncStorage.setItem('Token', JSON.stringify(otpRes.token));
     closeOtpBottomSheet();
@@ -255,7 +257,6 @@ const ProductDetails = ({ route, navigation }) => {
   };
 
   const handleLogin = () => {
-    console.log('Logging in with phone number:', phoneNumber);
     try {
       setLoadings(true);
       dispatch(LoginAction(phoneNumber));
@@ -384,7 +385,7 @@ const ProductDetails = ({ route, navigation }) => {
           </View>
           <Divider style={styles.divider} />
         </ScrollView>
-        <Button
+        {userDetails?._id !== singleProduct?.user_Id && <Button
           icon={({ size, color }) => (
             <IconButton icon="message" iconColor={color} size={size} />
           )}
@@ -392,7 +393,7 @@ const ProductDetails = ({ route, navigation }) => {
           onPress={() => navigation.navigate('ChatDetailsScreen', { user_Id: singleProduct?.user_Id })}
           style={styles.chatButton}>
           Chat with Seller
-        </Button>
+        </Button>}
         {bottomSheetVisible && (
           <BottomSheet
             ref={bottomSheetRef}

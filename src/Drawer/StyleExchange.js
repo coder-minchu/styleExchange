@@ -1,5 +1,7 @@
 import {
     ActivityIndicator,
+    Alert,
+    BackHandler,
     Image,
     ImageBackground,
     SafeAreaView,
@@ -28,6 +30,8 @@ import SortBottomSheet from '../Components/BottomSheet/SortBottomSheet';
 import FilterBottomSheet from '../Components/BottomSheet/FilterBottomSheet';
 import Header from '../Components/Header/Header';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import socketServcies from '../utils/socketServcies';
 
 const dummyData = [
     {
@@ -301,6 +305,33 @@ const StyleExchange = ({ navigation }) => {
     const loadingRes = useSelector(state => state.ProductListReducer.loading);
     // console.log("🚀 ~ file: StyleExchange.js:248 ~ StyleExchange ~ loadingRes:", loadingRes)
 
+    useFocusEffect(
+        useCallback(() => {
+            socketServcies.initializeSocket();
+        }, [])
+    );
+
+    useFocusEffect(useCallback(() => {
+        const backAction = () => {
+            Alert.alert('Hold on!', 'Are you sure you want to go back?', [
+                {
+                    text: 'Cancel',
+                    onPress: () => null,
+                    style: 'cancel',
+                },
+                { text: 'YES', onPress: () => BackHandler.exitApp() },
+            ]);
+            return true;
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            backAction,
+        );
+
+        return () => backHandler.remove();
+    }, []))
+
     useEffect(() => {
         if (productRes) {
             setProductList(prev => [...prev, ...productRes.filteredProducts]);
@@ -329,7 +360,7 @@ const StyleExchange = ({ navigation }) => {
     };
 
     const handleSearch = () => {
-        console.log('Inside border clicked');
+        // console.log('Inside border clicked');
         searchBottomSheetOpen();
     };
     const searchBottomSheetOpen = () => {
@@ -438,7 +469,7 @@ const StyleExchange = ({ navigation }) => {
     }, []);
 
     const onEndReached = () => {
-        console.log('second flatlist');
+        // console.log('second flatlist');
         if (productList.length < 10 && page !== 0) {
             return;
         }
@@ -488,7 +519,6 @@ const StyleExchange = ({ navigation }) => {
     };
     const renderItem = useCallback(
         ({ item }) => {
-            console.log('Render item called');
             return (
                 <View>
                     <View style={styles.subCategoryFlatlist}>
